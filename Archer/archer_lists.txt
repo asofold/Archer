@@ -90,12 +90,16 @@ Planning
 ?(add) Something for multiple targets, including position correction (corrected off block...).
 !(add) Option to remove arrows.
 !(add) Option to refund arrows.
+!(add) Option to name target signs on sign (4th line ?).
+!(add) Always notify the shooter.
 
 *** Optimization
 !(refactor) To use settings objects (especially to differentiate signs from other targets later).
 !(add) Auto unsubscribe (if not received or generated a notification for some time). 
 ?(add) configurable or not: use projectile location as reference not the player location (!)
-(add) Target block finding (more precise, even: calculate block transitions directly).
+!(add) Target block finding (more precise, even: calculate block transitions directly).
+!(consider) Arrow length + position offset: Use direction of arrow to estimate hit distance from the sign,
+    use a different projection.  
 
 *** API
 !(add) Events: hit, miss, shoot
@@ -112,6 +116,8 @@ STACK
 VERSION HISTORY
 -----------------------------------------------------------------
 
+(0.1.0)
+- (bugfix) Remove debug output for readLines.
 
 (0.0.0) Initial version.
 

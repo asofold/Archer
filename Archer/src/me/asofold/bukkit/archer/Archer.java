@@ -158,7 +158,6 @@ public class Archer extends JavaPlugin implements Listener{
 		if (lines.size() != 4) return null;
 		for (int i = 0; i < 4; i++){
 			String line = lines.get(i);
-			System.out.println(line);
 			if (trim) line = line.trim();
 			if (stripColor) line = ChatColor.stripColor(line);
 			if (ignoreCase) line = line.toLowerCase();
