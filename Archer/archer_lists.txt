@@ -9,6 +9,11 @@ Features
 
 - Set up a sign with certain configurable content, 
     which then serves as target practice for archers.
+    Default lines (no spaces, small letters):
+    ooooo
+    ooxxxoo
+    ooxxxoo
+    ooooo
 - Receive information about players hitting targets by chat,
     including distance off target and shooting distance.
 - Only players that subscribe explicitly can receive or generate 
