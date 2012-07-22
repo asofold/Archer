@@ -18,12 +18,14 @@ Features
     cross world notification... 
 
 
-Permissions
+Commands and Permissions
 -----------------------------------------------------------------
-- archer.reload
+- /archer reload 
+    archer.reload
     To reload the settings.
-- archer.notify
-    To use '/archer notify' to receive notifications.
+- /archer notify
+    Toggle if to take part in the notifications about hitting signs.
+    archer.notify
 
 
 Configuration
