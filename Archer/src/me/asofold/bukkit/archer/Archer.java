@@ -431,7 +431,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null) return;
 		// Register projectile for aiming.
-		data.launchs.put(projectile.getEntityId(), data.bPlayer.getLocation()); // projectile.getLocation());
+		data.launchs.put(projectile.getEntityId(), data.bPlayer.getLocation().add(new Vector(0.0, data.bPlayer.getEyeHeight(), 0.0))); // projectile.getLocation());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)

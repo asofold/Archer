@@ -95,11 +95,12 @@ Planning
 
 *** Optimization
 !(refactor) To use settings objects (especially to differentiate signs from other targets later).
-!(add) Auto unsubscribe (if not received or generated a notification for some time). 
+?(add) Auto unsubscribe (if not received or generated a notification for some time). [Could be problematic] 
 ?(add) configurable or not: use projectile location as reference not the player location (!)
 !(add) Target block finding (more precise, even: calculate block transitions directly).
 !(consider) Arrow length + position offset: Use direction of arrow to estimate hit distance from the sign,
     use a different projection.  
+!(add) Option to forget PlayerData for players that logged out for longer than a certain amount of time. 
 
 *** API
 !(add) Events: hit, miss, shoot
@@ -111,12 +112,13 @@ STACK
 
 *** 0.1.0
 
-
+!(take into account the arrow spawning height: maybe use projectile position ?
 
 VERSION HISTORY
 -----------------------------------------------------------------
 
 (0.1.0)
+- (bugfix) Take into account the players eye height.
 - (add) Allow use without permissions.
 - (bugfix) Remove debug output for readLines.
 
