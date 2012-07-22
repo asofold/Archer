@@ -111,12 +111,13 @@ STACK
 
 *** 0.1.0
 
-!(add) Allow use without permissions !
+
 
 VERSION HISTORY
 -----------------------------------------------------------------
 
 (0.1.0)
+- (add) Allow use without permissions.
 - (bugfix) Remove debug output for readLines.
 
 (0.0.0) Initial version.

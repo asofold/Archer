@@ -97,6 +97,10 @@ public class Archer extends JavaPlugin implements Listener{
 
 	private boolean defaultIgnoreCase = false;
 	private boolean ignoreCase = defaultIgnoreCase;
+
+	private boolean defaultUsePermissions = true;
+	
+	private boolean usePermissions = defaultUsePermissions ;
 	
 	public CompatConfig getDefaultSettings(){
 		CompatConfig cfg = CompatConfigFactory.getConfig(null);
@@ -120,6 +124,7 @@ public class Archer extends JavaPlugin implements Listener{
 		cfg.set("offset.z", defaultOffsetZ);
 		cfg.set("off-target.divisor", defaultDivisor);
 		cfg.set("verbose", defaultVerbose);
+		cfg.set("permissions.use", defaultUsePermissions);
 		return cfg;
 	}
 
@@ -149,6 +154,7 @@ public class Archer extends JavaPlugin implements Listener{
 		trim = cfg.getBoolean("target.trim", defaultTrim);
 		stripColor = cfg.getBoolean("target.stripColor", defaultStripColor);
 		ignoreCase = cfg.getBoolean("target.ignore-case", defaultIgnoreCase);
+		usePermissions = cfg.getBoolean("permissions.use", defaultUsePermissions);
 	}
 	
 	private String[] readLines(CompatConfig cfg, String path) {
@@ -193,7 +199,7 @@ public class Archer extends JavaPlugin implements Listener{
 		}
 		if (len == 1 && cmd.equals("notify")){
 			// toggle notify
-			if (!checkPerm(sender, "archer.notify")) return true;
+			if (usePermissions && !checkPerm(sender, "archer.notify")) return true;
 			if (!checkPlayer(sender) ) return true;
 			Player player = (Player) sender;
 			String playerName = player.getName();
