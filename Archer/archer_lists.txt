@@ -1,0 +1,108 @@
+Archer - lists
+-----------------------------------------------------------------
+
+Add features for target practice with arrows on signs!
+
+
+Features
+-----------------------------------------------------------------
+
+- Set up a sign with certain configurable content, 
+    which then serves as target practice for archers.
+- Receive information about players hitting targets by chat,
+    including distance off target and shooting distance.
+- Only players that subscribe explicitly can receive or generate 
+    notifications.
+- Configure various aspects, such as target center offset, 
+    maximum distance off target, maximum notification distance,
+    cross world notification... 
+
+
+Permissions
+-----------------------------------------------------------------
+- archer.reload
+    To reload the settings.
+- archer.notify
+    To use '/archer notify' to receive notifications.
+
+
+Configuration
+-----------------------------------------------------------------
+- target.lines: A list of 4 string entries for the lines of a target sign.
+    Use § for color codes.
+- target.trim: Disregard leading or trailing white space for comparison
+    of target sign lines.
+- target.strip-color: Disregard chat color for comparison of target signs.
+- target.ignore-case: Disregard letter case for comparison of target signs.
+- shooter.distance.min|max: Minimum/maximum distance that can lead to
+    notifications about hitting target signs. 
+    Set to 0 to deactivate.
+- notify.distance: Maximum distance to target sign, at which to notify
+    players about hits.
+    Set to 0 to deactivate.
+- notify.cross-world: If to notify players that are in a differing world.
+- off-target.divisor: Target accuracy is displayed up to 1000 parts of 
+    the maximum distance off center, the divisor lets you sort hits
+    into categories of lower numbers.
+- off-target.distance: Maximum distance off target.
+- offset: x,y,z for target center offset. 
+    (x,z would not make any sense, if signs are not always placed
+        in the same n-w-s-e orientation!)
+- step: This is the step length for finding a more accurate hitting
+    position, the arrow can be up to its speed away from target,
+    as by current CraftBukkit implementation (roughly up to 3).
+- verbose: If true, this will output some details about shots to
+    the console.
+
+
+Method
+-----------------------------------------------------------------
+For target signs:
+1. The player location when shooting decides about the target distance,
+    of course the distance will only be calculated when hitting a target.
+    (One could use the arrow spawn location, but standing in one spot,
+     would now not change the distance.)
+2. Internally the arrow location for hitting a block, which is passed to
+    plugins can be off by roughly the speed of the arrow, so a step wise
+    checking for air is done, the first non air block will be considered
+    as hit.
+3. If a sign with the predefined content is found:
+    A correction of the exact hitting location is calculated, to get the
+    location where the arrow hits the plane where the sign is attached to.
+
+
+Planning
+-----------------------------------------------------------------
+
+*** Features
+!(add) Contest !
+?(add) notify greedy option: get all archer events from all worlds and distances
+!(add) Individual target settings to be set in-game, including target names.
+!(add) Allow other blocks than air to be passed for step calculation.
+!(add) Create target sign option.
+?(add) Something for multiple targets, including position correction (corrected off block...).
+!(add) Option to remove arrows.
+!(add) Option to refund arrows.
+
+*** Optimization
+!(refactor) To use settings objects (especially to differentiate signs from other targets later).
+!(add) Auto unsubscribe (if not received or generated a notification for some time). 
+?(add) configurable or not: use projectile location as reference not the player location (!)
+(add) Target block finding (more precise, even: calculate block transitions directly).
+
+*** API
+!(add) Events: hit, miss, shoot
+
+
+STACK
+-----------------------------------------------------------------
+
+
+*** Release / on server !
+
+VERSION HISTORY
+-----------------------------------------------------------------
+
+
+(0.0.0) Initial version.
+

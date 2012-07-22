@@ -1,0 +1,10 @@
+name: Archer
+main: me.asofold.bukkit.archer.Archer
+version: 0.0.0
+depend:
+- PluginLibSharedLibrary
+
+commands:
+  archer:
+    description: 'Commands to subscribe for archer services.'
+    usage: '/archer.... for: notify | reload'
