@@ -60,6 +60,8 @@ Configuration
     as by current CraftBukkit implementation (roughly up to 3).
 - verbose: If true, this will output some details about shots to
     the console.
+    - permissions.use: If to use superperms - if set to false,
+        players can use the normal functions without permission checks.
 
 
 Method
@@ -110,9 +112,6 @@ STACK
 -----------------------------------------------------------------
 
 
-*** 0.1.0
-
-!(take into account the arrow spawning height: maybe use projectile position ?
 
 VERSION HISTORY
 -----------------------------------------------------------------
