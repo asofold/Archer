@@ -103,6 +103,15 @@ public class Archer extends JavaPlugin implements Listener{
 
 	private final long defaultDurExpireData = 20 * 60 * 1000;
 	private long durExpireData = defaultDurExpireData;
+
+	private String defaultTargetNamePrefix = ">>";
+	private String targetNamePrefix = defaultTargetNamePrefix;
+	
+	private String defaultTargetNameSuffix = "<<";
+	private String targetNameSuffix = defaultTargetNameSuffix;
+
+	private String defaultTargetNameDelegator = "^^^^^";
+	private String targetNameDelegator = defaultTargetNameDelegator;
 	
 	public CompatConfig getDefaultSettings(){
 		CompatConfig cfg = CompatConfigFactory.getConfig(null);
@@ -114,6 +123,9 @@ public class Archer extends JavaPlugin implements Listener{
 		cfg.set("target.trim", defaultTrim);
 		cfg.set("target.stripColor", defaultStripColor);
 		cfg.set("target.ignore-case", defaultIgnoreCase);
+		cfg.set("target.name.prefix", defaultTargetNamePrefix);
+		cfg.set("target.name.suffix", defaultTargetNameSuffix);
+		cfg.set("target.name.delegator", defaultTargetNameDelegator);
 		cfg.set("notify.distance", defaultNotifyDistance);
 		cfg.set("notify.cross-world", defaultNotifyCrossWorld);
 		cfg.set("shooter.distance.min", defaultShootDistMin);
@@ -159,6 +171,9 @@ public class Archer extends JavaPlugin implements Listener{
 		ignoreCase = cfg.getBoolean("target.ignore-case", defaultIgnoreCase);
 		usePermissions = cfg.getBoolean("permissions.use", defaultUsePermissions);
 		durExpireData = cfg.getLong("players.expire-offline", defaultDurExpireData) * 60 * 1000; // Set as minutes.
+		targetNamePrefix = cfg.getString("target.name.prefix", defaultTargetNamePrefix);
+		targetNameSuffix = cfg.getString("target.name.suffix", defaultTargetNameSuffix);
+		targetNameDelegator = cfg.getString("target.name.delegator", defaultTargetNameDelegator);
 	}
 	
 	private String[] readLines(CompatConfig cfg, String path) {
