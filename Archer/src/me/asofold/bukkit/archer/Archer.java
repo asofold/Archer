@@ -362,13 +362,10 @@ public class Archer extends JavaPlugin implements Listener{
 		if (shootDistMin > 0.0 && shootDist < shootDistMin) return;
 		if (shootDistMax > 0.0 && shootDist > shootDistMax) return;
 		final int off = (int) Math.round((1000.0 - 1000.0 * (signHitDist - distOff) / signHitDist) / offDivisor);
-		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " blocks distance.";
-		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits a target " + specPart;
-		if (data.bPlayer.isOnline() && data.bPlayer.getLocation().distance(targetLocation) > notifyDistance){
-			// Ensure player is messaged.
-			data.bPlayer.sendMessage(ChatColor.BLACK + "[Archer] " + specPart);
-		}
-		sendAll(msg, targetLocation);
+		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " blocks distance.";
+		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
+		data.bPlayer.sendMessage(ChatColor.BLACK + "[Archer] " + ChatColor.WHITE + "hits " + specPart);
+		sendAll(msg, targetLocation, data);
 	}
 	
 	private String stringPos(double x, double y, double z) {
@@ -453,17 +450,18 @@ public class Archer extends JavaPlugin implements Listener{
 		// TODO: later: check if contest + add miss / hit events
 	}
 	
-	public void sendAll(String msg, boolean label, Location ref){
-		if (!label) sendAll(msg, ref);
-		else sendAll(msgStart + msg, ref);
+	public void sendAll(String msg, boolean label, Location ref, PlayerData exclude){
+		if (!label) sendAll(msg, ref, exclude);
+		else sendAll(msgStart + msg, ref, exclude);
 	}
 	
-	public void sendAll(String msg, Location ref){
+	public void sendAll(String msg, Location ref, PlayerData exclude){
 		boolean distance = notifyDistance > 0.0;
 		boolean restrict = ref != null && (!notifyCrossWorld || distance);
 		String worldName = null;
 		if (restrict) worldName = ref.getWorld().getName();
 		for (PlayerData data : players.values()){
+			if (data == exclude) continue;
 			if (!data.bPlayer.isOnline()) continue;
 			if (restrict){
 				if (!worldName.equals(data.bPlayer.getWorld().getName())) continue;
