@@ -42,6 +42,13 @@ Configuration
     of target sign lines.
 - target.strip-color: Disregard chat color for comparison of target signs.
 - target.ignore-case: Disregard letter case for comparison of target signs.
+- target.name.prefix|suffix: Define wrapping of fourth line for target sign
+    naming, with default settings ">>Target 1<<" would be the name "Target 1".
+    They can be set to "" or '' in order to not use prefix and/or suffix.
+    Setting both to "" or '' would prevent naming target signs, currently.
+- target.name.delegator: Fourth line indicating that a sign with target name
+    in the fourth line (with prefix and/or suffix) should be looked for,
+    starting of the block the hit target sign is attached to.
 - shooter.distance.min|max: Minimum/maximum distance that can lead to
     notifications about hitting target signs. 
     Set to 0 to deactivate.
@@ -125,23 +132,23 @@ STACK
 !(add) Contests with variable parameters: /archer contest create myconstest123 bestof3 mindist=20
 !(add) Configurable contests, that players can subscribe to (number of shots, max-fail, way of counting, target-names/positions).
 
-!(add) Named targets (by sign) a) fourth line prefix + suffix b) fourth line indicating where the name is found!
-
 !(add) configurable hit message:  player name, display name, shooting distance, off target, arrow speed (!), ?arrow initial speed, target coordinates? ! 
 
 
 
 
 *** MINIMUM 0.2.0 :
-*** named targets
+*** named targets: search signs on attached to block.
 
 
 VERSION HISTORY
 -----------------------------------------------------------------
 
 (0.2.0)
+- (add) Named targets: Direct naming on sign.
 - (adjust) Different message to shooter than to others.
 - (add) Notify the shooter about hits, even if more far away than notification distance.
+- (adjust) Some messages.
 - (add) Expiration for data / notification state of offline players (configurable duration).
 - (refactor) Use Settings class (and TargetSignSpecs), some code moving.
 
