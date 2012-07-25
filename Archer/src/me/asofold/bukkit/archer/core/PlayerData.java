@@ -14,12 +14,14 @@ import org.bukkit.entity.Player;
 public class PlayerData {
 	public final String playerName;
 	
-	public Player bPlayer = null;
+	public Player player = null;
+	
+	public long tsActivity = System.currentTimeMillis(); 
 	
 	/**
 	 * Entity id to launch location.
 	 */
-	public final Map<Integer, Location> launchs = new HashMap<Integer, Location>(10);
+	private final Map<Integer, Location> launchs = new HashMap<Integer, Location>(10);
 	
 	public PlayerData(String playerName){
 		this.playerName = playerName;
@@ -27,14 +29,37 @@ public class PlayerData {
 
 	public PlayerData(Player player) {
 		this(player.getName());
-		bPlayer = player;
+		this.player = player;
 	}
 
 	public void clear() {
-		bPlayer = null;
+		player = null;
 		launchs.clear();
 	}
 
+	public void addLaunch(Integer id, Location loc){
+		launchs.put(id, loc);
+		tsActivity = System.currentTimeMillis();
+	}
 	
+	public Location removeLaunch(Integer id){
+		tsActivity = System.currentTimeMillis();
+		return launchs.remove(id);
+	}
 	
+	/**
+	 * Use to see if data can be removed.<br>
+	 * This will respect if the player is in some contest and might be in when re-logging, later.
+	 * @param tsNow
+	 * @param durExpire
+	 * @return
+	 */
+	public boolean mayForget(long tsNow, long durExpire){
+		return tsNow - tsActivity > durExpire;
+	}
+
+	public void setPlayer(Player player) {
+		this.player = player;
+		tsActivity = System.currentTimeMillis();
+	}
 }

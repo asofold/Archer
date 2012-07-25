@@ -99,8 +99,10 @@ public class Archer extends JavaPlugin implements Listener{
 	private boolean ignoreCase = defaultIgnoreCase;
 
 	private boolean defaultUsePermissions = true;
-	
-	private boolean usePermissions = defaultUsePermissions ;
+	private boolean usePermissions = defaultUsePermissions;
+
+	private final long defaultDurExpireData = 20 * 60 * 1000;
+	private long durExpireData = defaultDurExpireData;
 	
 	public CompatConfig getDefaultSettings(){
 		CompatConfig cfg = CompatConfigFactory.getConfig(null);
@@ -125,6 +127,7 @@ public class Archer extends JavaPlugin implements Listener{
 		cfg.set("off-target.divisor", defaultDivisor);
 		cfg.set("verbose", defaultVerbose);
 		cfg.set("permissions.use", defaultUsePermissions);
+		cfg.set("players.expire-offline", defaultDurExpireData / 60 / 1000); // Set as minutes.
 		return cfg;
 	}
 
@@ -155,6 +158,7 @@ public class Archer extends JavaPlugin implements Listener{
 		stripColor = cfg.getBoolean("target.stripColor", defaultStripColor);
 		ignoreCase = cfg.getBoolean("target.ignore-case", defaultIgnoreCase);
 		usePermissions = cfg.getBoolean("permissions.use", defaultUsePermissions);
+		durExpireData = cfg.getLong("players.expire-offline", defaultDurExpireData) * 60 * 1000; // Set as minutes.
 	}
 	
 	private String[] readLines(CompatConfig cfg, String path) {
@@ -267,7 +271,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null) return;
 		final int entityId = projectile.getEntityId();
-		final Location launchLoc = data.launchs.remove(entityId);
+		final Location launchLoc = data.removeLaunch(entityId);
 		if (launchLoc == null) return;
 		
 		// TODO: later: add miss / hit events
@@ -364,7 +368,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final int off = (int) Math.round((1000.0 - 1000.0 * (signHitDist - distOff) / signHitDist) / offDivisor);
 		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " blocks distance.";
 		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
-		data.bPlayer.sendMessage(ChatColor.BLACK + "[Archer] " + ChatColor.WHITE + "hits " + specPart);
+		data.player.sendMessage(ChatColor.BLACK + "[Archer] " + ChatColor.WHITE + "hits " + specPart);
 		sendAll(msg, targetLocation, data);
 	}
 	
@@ -432,7 +436,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null) return;
 		// Register projectile for aiming.
-		data.launchs.put(projectile.getEntityId(), data.bPlayer.getLocation().add(new Vector(0.0, data.bPlayer.getEyeHeight(), 0.0))); // projectile.getLocation());
+		data.addLaunch(projectile.getEntityId(), data.player.getLocation().add(new Vector(0.0, data.player.getEyeHeight(), 0.0))); // projectile.getLocation());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
@@ -445,7 +449,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null) return;
 		final int id = projectile.getEntityId();
-		final Location launchLoc = data.launchs.remove(id);
+		final Location launchLoc = data.removeLaunch(id);
 		if (launchLoc == null) return;
 		// TODO: later: check if contest + add miss / hit events
 	}
@@ -460,14 +464,22 @@ public class Archer extends JavaPlugin implements Listener{
 		boolean restrict = ref != null && (!notifyCrossWorld || distance);
 		String worldName = null;
 		if (restrict) worldName = ref.getWorld().getName();
+		List<String> rem = new LinkedList<String>();
+		final long tsNow = System.currentTimeMillis();
 		for (PlayerData data : players.values()){
 			if (data == exclude) continue;
-			if (!data.bPlayer.isOnline()) continue;
-			if (restrict){
-				if (!worldName.equals(data.bPlayer.getWorld().getName())) continue;
-				else if (distance && ref.distance(data.bPlayer.getLocation()) > notifyDistance) continue; 
+			if (data.player == null || !data.player.isOnline()){
+				if (data.mayForget(tsNow, durExpireData)) rem.add(data.playerName.toLowerCase());
+				continue;
 			}
-			data.bPlayer.sendMessage(msg);
+			if (restrict){
+				if (!worldName.equals(data.player.getWorld().getName())) continue;
+				else if (distance && ref.distance(data.player.getLocation()) > notifyDistance) continue; 
+			}
+			data.player.sendMessage(msg);
+		}
+		for (String name : rem){
+			players.remove(name);
 		}
 	}
 	
@@ -481,7 +493,7 @@ public class Archer extends JavaPlugin implements Listener{
 		if (player == null) return null;
 		final PlayerData data = players.get(player.getName().toLowerCase());
 		if ( data == null) return null;
-		data.bPlayer = player;
+		data.setPlayer(player);
 		return data;
 	}
 	

@@ -129,7 +129,6 @@ STACK
 
 *** MINIMUM 0.2.0 :
 *** named targets
-*** message shooter always
 
 
 
@@ -138,7 +137,9 @@ VERSION HISTORY
 -----------------------------------------------------------------
 
 (0.2.0)
+- (adjust) Different message to shooter than to others.
 - (add) Notify the shooter about hits, even if more far away than notification distance.
+- (add) Expiration for data / notification state of offline players (configurable duration).
 
 (0.1.0)
 - (bugfix) Take into account the players eye height.
