@@ -60,9 +60,11 @@ Configuration
     as by current CraftBukkit implementation (roughly up to 3).
 - verbose: If true, this will output some details about shots to
     the console.
-    - permissions.use: If to use superperms - if set to false,
-        players can use the normal functions without permission checks.
-
+- permissions.use: If to use superperms - if set to false,
+    players can use the normal functions without permission checks.
+- players.expire-offline: Duration in minutes after which offline 
+    player data / notification state expire.
+    Set to 0 to never expire data (until restart/reload).
 
 Method
 -----------------------------------------------------------------
