@@ -8,10 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import me.asofold.bukkit.archer.config.Settings;
 import me.asofold.bukkit.archer.config.compatlayer.CompatConfig;
 import me.asofold.bukkit.archer.config.compatlayer.CompatConfigFactory;
 import me.asofold.bukkit.archer.config.compatlayer.ConfigUtil;
 import me.asofold.bukkit.archer.core.PlayerData;
+import me.asofold.bukkit.archer.core.TargetSignSpecs;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -44,152 +46,15 @@ public class Archer extends JavaPlugin implements Listener{
 
 	private static final String msgStart = ChatColor.DARK_GRAY + "[Archer] " + ChatColor.GRAY;
 	
-	/**
-	 * Lines of target (trim applied).
-	 */
-	private final String[] defaultLines = new String[]{
-			"ooooo",
-			"ooxxxoo",
-			"ooxxxoo",
-			"ooooo"
-	};
-	
-	private final String[] lines = new String[4];
-	
-	private static final double defaultSignHitDist = 0.31;
-	private double signHitDist = defaultSignHitDist;
-	
-//	public static final double defaultArrowLength = 0.7;
-//	private double arrowLength = defaultArrowLength;
-	private double defaultStep = 0.3;
-	private double step = defaultStep;
-
-	private double defaultOffsetX = 0.0;
-	private double offsetX = defaultOffsetX;
-	private double defaultOffsetY = 0.08;
-	private double offsetY = defaultOffsetY ;
-	private double defaultOffsetZ = 0.0;
-	private double offsetZ = defaultOffsetZ;
-
-	private double defaultDivisor = 100;
-	private double offDivisor = defaultDivisor;
-
-	private double defaultNotifyDistance = 120.0;
-	private double notifyDistance = defaultNotifyDistance ;
-
-	private boolean defaultNotifyCrossWorld = false;
-	private boolean notifyCrossWorld = defaultNotifyCrossWorld ;
-
-	private boolean defaultVerbose = false;
-	private boolean verbose = defaultVerbose ;
-
-	private double defaultShootDistMin = 0.0;
-	private double shootDistMin = defaultShootDistMin ;
-	
-	private double defaultShootDistMax = 0.0;
-	private double shootDistMax = defaultShootDistMax;
-
-	private boolean defaultTrim = false;
-	private boolean trim = defaultTrim;
-
-	private boolean defaultStripColor = false;
-	private boolean stripColor = defaultStripColor;
-
-	private boolean defaultIgnoreCase = false;
-	private boolean ignoreCase = defaultIgnoreCase;
-
-	private boolean defaultUsePermissions = true;
-	private boolean usePermissions = defaultUsePermissions;
-
-	private final long defaultDurExpireData = 20 * 60 * 1000;
-	private long durExpireData = defaultDurExpireData;
-
-	private String defaultTargetNamePrefix = ">>";
-	private String targetNamePrefix = defaultTargetNamePrefix;
-	
-	private String defaultTargetNameSuffix = "<<";
-	private String targetNameSuffix = defaultTargetNameSuffix;
-
-	private String defaultTargetNameDelegator = "^^^^^";
-	private String targetNameDelegator = defaultTargetNameDelegator;
-	
-	public CompatConfig getDefaultSettings(){
-		CompatConfig cfg = CompatConfigFactory.getConfig(null);
-		LinkedList<String> lines = new LinkedList<String>();
-		for (String line : this.defaultLines){
-			lines.add(line);
-		}
-		cfg.set("target.lines", lines);
-		cfg.set("target.trim", defaultTrim);
-		cfg.set("target.stripColor", defaultStripColor);
-		cfg.set("target.ignore-case", defaultIgnoreCase);
-		cfg.set("target.name.prefix", defaultTargetNamePrefix);
-		cfg.set("target.name.suffix", defaultTargetNameSuffix);
-		cfg.set("target.name.delegator", defaultTargetNameDelegator);
-		cfg.set("notify.distance", defaultNotifyDistance);
-		cfg.set("notify.cross-world", defaultNotifyCrossWorld);
-		cfg.set("shooter.distance.min", defaultShootDistMin);
-		cfg.set("shooter.distance.max", defaultShootDistMax);
-		cfg.set("off-target.distance", defaultSignHitDist);
-//		cfg.set("arrow-length", defaultArrowLength);
-		cfg.set("step", defaultStep);
-		cfg.set("offset.x", defaultOffsetX);
-		cfg.set("offset.y", defaultOffsetY);
-		cfg.set("offset.z", defaultOffsetZ);
-		cfg.set("off-target.divisor", defaultDivisor);
-		cfg.set("verbose", defaultVerbose);
-		cfg.set("permissions.use", defaultUsePermissions);
-		cfg.set("players.expire-offline", defaultDurExpireData / 60 / 1000); // Set as minutes.
-		return cfg;
-	}
+	private final Settings settings = new Settings();
 
 	public void reloadSettings() {
 		File file = new File(getDataFolder(), "config.yml");
 		CompatConfig cfg = CompatConfigFactory.getConfig(file);
 		boolean exists = file.exists();
 		if (exists) cfg.load();
-		if (ConfigUtil.forceDefaults(getDefaultSettings(), cfg) || !exists) cfg.save();
-		signHitDist = cfg.getDouble("off-target.distance", defaultSignHitDist);
-//		arrowLength = cfg.getDouble("arrow-length", defaultArrowLength);
-		step = cfg.getDouble("step", defaultStep);
-		offsetX = cfg.getDouble("offset.x", defaultOffsetX);
-		offsetY = cfg.getDouble("offset.y", defaultOffsetY);
-		offsetZ = cfg.getDouble("offset.z", defaultOffsetZ);
-		offDivisor = cfg.getDouble("off-target.divisor", defaultDivisor);
-		verbose = cfg.getBoolean("verbose", defaultVerbose);
-		notifyDistance = cfg.getDouble("notify.distance", defaultNotifyDistance);
-		notifyCrossWorld = cfg.getBoolean("notify.cross-world", defaultNotifyCrossWorld);
-		shootDistMin = cfg.getDouble("shooter.distance.min", defaultShootDistMin);
-		shootDistMax = cfg.getDouble("shooter.distance.max", defaultShootDistMax);
-		String[] lines = readLines(cfg, "target.lines");
-		if (lines == null) lines = defaultLines;
-		for (int i = 0; i < 4; i++){
-			this.lines[i] = lines[i];
-		}
-		trim = cfg.getBoolean("target.trim", defaultTrim);
-		stripColor = cfg.getBoolean("target.stripColor", defaultStripColor);
-		ignoreCase = cfg.getBoolean("target.ignore-case", defaultIgnoreCase);
-		usePermissions = cfg.getBoolean("permissions.use", defaultUsePermissions);
-		durExpireData = cfg.getLong("players.expire-offline", defaultDurExpireData) * 60 * 1000; // Set as minutes.
-		targetNamePrefix = cfg.getString("target.name.prefix", defaultTargetNamePrefix);
-		targetNameSuffix = cfg.getString("target.name.suffix", defaultTargetNameSuffix);
-		targetNameDelegator = cfg.getString("target.name.delegator", defaultTargetNameDelegator);
-	}
-	
-	private String[] readLines(CompatConfig cfg, String path) {
-		String[] out = new String[4];
-		List<String> lines = cfg.getStringList(path, null);
-		if (lines == null) return null;
-		if (lines.size() != 4) return null;
-		for (int i = 0; i < 4; i++){
-			String line = lines.get(i);
-			if (trim) line = line.trim();
-			if (stripColor) line = ChatColor.stripColor(line);
-			if (ignoreCase) line = line.toLowerCase();
-			if (line.length() > 15) return null;
-			out[i] = line;
-		}
-		return out;
+		if (ConfigUtil.forceDefaults(Settings.getDefaultSettings(), cfg) || !exists) cfg.save();
+		settings.applyConfig(cfg);
 	}
 
 	public Archer(){
@@ -218,7 +83,7 @@ public class Archer extends JavaPlugin implements Listener{
 		}
 		if (len == 1 && cmd.equals("notify")){
 			// toggle notify
-			if (usePermissions && !checkPerm(sender, "archer.notify")) return true;
+			if (settings.usePermissions && !checkPerm(sender, "archer.notify")) return true;
 			if (!checkPlayer(sender) ) return true;
 			Player player = (Player) sender;
 			String playerName = player.getName();
@@ -298,7 +163,7 @@ public class Archer extends JavaPlugin implements Listener{
 		// TODO: later: add miss / hit events
 		final Vector velocity = projectile.getVelocity();
 		final Location projLoc = projectile.getLocation();
-		
+		final boolean verbose = settings.verbose;
 		if (verbose) System.out.println("projectile at: " + stringPos(projLoc)); // TODO: REMOVE
 		
 		final Location hitLoc = getHitLocation(projLoc, velocity);
@@ -311,14 +176,9 @@ public class Archer extends JavaPlugin implements Listener{
 		final BlockState state = hitBlock.getState();
 		if (!(state instanceof Sign)) return;
 		final Sign sign = (Sign) state;
-		final String[] lines = sign.getLines();
-		for (int i = 0; i < 4; i ++){
-			String line = lines[i];
-			if (trim) line = line.trim();
-			if (stripColor) line = ChatColor.stripColor(line);
-			if (ignoreCase) line = line.toLowerCase();
-			if (!line.equals(this.lines[i])) return;
-		}
+		
+		final TargetSignSpecs specs = TargetSignSpecs.getSpecs(sign, settings);
+		if (specs == null) return;
 		// Target sign hit !
 		
 		// Get middle of sign (!)
@@ -336,9 +196,9 @@ public class Archer extends JavaPlugin implements Listener{
 		final double dz = attachedTo.getZ() - z;
 		
 		// Middle of of sign.
-		final double mx = 0.5 + x + .5 * dx + offsetX;
-		final double my = 0.5 + y + .5 * dy + offsetY;
-		final double mz = 0.5 + z + .5 * dz + offsetZ;
+		final double mx = 0.5 + x + .5 * dx + settings.offsetX;
+		final double my = 0.5 + y + .5 * dy + settings.offsetY;
+		final double mz = 0.5 + z + .5 * dz + settings.offsetZ;
 		
 		final double distOff;
 		
@@ -380,13 +240,13 @@ public class Archer extends JavaPlugin implements Listener{
 		if (verbose) System.out.println("middle at: " + stringPos(mx, my, mz)); // TODO: REMOVE
 		if (verbose) System.out.println("corrected hit pos: " +stringPos(cX, cY, cZ) + " -> off by " + format.format(distOff)); // TODO: REMOVE
 		
-		if (distOff > signHitDist) return;
+		if (distOff > settings.signHitDist) return;
 		// Hit !
 		final Location targetLocation = new Location(hitLoc.getWorld(), mx,my,mz);
 		final double shootDist = launchLoc.toVector().distance(new Vector(mx,my,mz));
-		if (shootDistMin > 0.0 && shootDist < shootDistMin) return;
-		if (shootDistMax > 0.0 && shootDist > shootDistMax) return;
-		final int off = (int) Math.round((1000.0 - 1000.0 * (signHitDist - distOff) / signHitDist) / offDivisor);
+		if (settings.shootDistMin > 0.0 && shootDist < settings.shootDistMin) return;
+		if (settings.shootDistMax > 0.0 && shootDist > settings.shootDistMax) return;
+		final int off = (int) Math.round((1000.0 - 1000.0 * (settings.signHitDist - distOff) / settings.signHitDist) / settings.offDivisor);
 		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " blocks distance.";
 		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
 		data.player.sendMessage(msgStart + ChatColor.GRAY + "hits " + specPart);
@@ -412,7 +272,8 @@ public class Archer extends JavaPlugin implements Listener{
 		int type = hitBlock.getTypeId();
 		final double l = velocity.length();
 		double done = 0.0;
-		final double step = this.step;
+		final double step = settings.step;
+		final boolean verbose = settings.verbose;
 		if (type == 0){
 			// TODO: also for other block types !
 			// TODO: optimize: find block transitions directly (one by one).
@@ -481,11 +342,13 @@ public class Archer extends JavaPlugin implements Listener{
 	}
 	
 	public void sendAll(String msg, Location ref, PlayerData exclude){
-		boolean distance = notifyDistance > 0.0;
-		boolean restrict = ref != null && (!notifyCrossWorld || distance);
+		boolean distance = settings.notifyDistance > 0.0;
+		boolean restrict = ref != null && (!settings.notifyCrossWorld || distance);
 		String worldName = null;
 		if (restrict) worldName = ref.getWorld().getName();
 		List<String> rem = new LinkedList<String>();
+		final long durExpireData = settings.durExpireData;
+		final double notifyDistance = settings.notifyDistance;
 		final long tsNow = System.currentTimeMillis();
 		for (PlayerData data : players.values()){
 			if (data == exclude) continue;
@@ -505,12 +368,12 @@ public class Archer extends JavaPlugin implements Listener{
 	}
 	
 	public void checkExpiredData(){
-		if (durExpireData <= 0 || players.isEmpty()) return;
+		if (settings.durExpireData <= 0 || players.isEmpty()) return;
 		List<String> rem = new LinkedList<String>();
 		final long tsNow = System.currentTimeMillis();
 		for (PlayerData data : players.values()){
 			if (data.player == null || !data.player.isOnline()){
-				if (data.mayForget(tsNow, durExpireData)) rem.add(data.playerName.toLowerCase());
+				if (data.mayForget(tsNow, settings.durExpireData)) rem.add(data.playerName.toLowerCase());
 				continue;
 			}		
 		}
