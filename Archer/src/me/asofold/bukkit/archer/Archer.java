@@ -261,6 +261,12 @@ public class Archer extends JavaPlugin implements Listener{
 	public void onEnable() {
 		reloadSettings();
 		getServer().getPluginManager().registerEvents(this, this);
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				checkExpiredData();
+			}
+		}, 1337, 1337);
 		super.onEnable();
 	}
 	
@@ -477,6 +483,21 @@ public class Archer extends JavaPlugin implements Listener{
 				else if (distance && ref.distance(data.player.getLocation()) > notifyDistance) continue; 
 			}
 			data.player.sendMessage(msg);
+		}
+		for (String name : rem){
+			players.remove(name);
+		}
+	}
+	
+	public void checkExpiredData(){
+		if (durExpireData <= 0 || players.isEmpty()) return;
+		List<String> rem = new LinkedList<String>();
+		final long tsNow = System.currentTimeMillis();
+		for (PlayerData data : players.values()){
+			if (data.player == null || !data.player.isOnline()){
+				if (data.mayForget(tsNow, durExpireData)) rem.add(data.playerName.toLowerCase());
+				continue;
+			}		
 		}
 		for (String name : rem){
 			players.remove(name);
