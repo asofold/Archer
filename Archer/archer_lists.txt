@@ -14,6 +14,9 @@ Features
     ooxxxoo
     ooxxxoo
     ooooo
+- Give a target a name with the fourth line ">>NAME<<", or by
+    delegating to a sign attached to the same block with the
+    fourth line "^^^^^" (configurable).
 - Receive information about players hitting targets by chat,
     including distance off target and shooting distance.
 - Only players that subscribe explicitly can receive or generate 
@@ -138,7 +141,7 @@ STACK
 !(add) configurable hit message:  player name, display name, shooting distance, off target, arrow speed (!), ?arrow initial speed, target coordinates? ! 
 
 
-
+!(add) confine to certain targets (only hitting those counts) [later: contest defines confine + side conditions]
 
 VERSION HISTORY
 -----------------------------------------------------------------
