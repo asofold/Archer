@@ -143,7 +143,7 @@ VERSION HISTORY
 - (adjust) Different message to shooter than to others.
 - (add) Notify the shooter about hits, even if more far away than notification distance.
 - (add) Expiration for data / notification state of offline players (configurable duration).
-- (refactor) Use Settings class (and TargetSignSpecs).
+- (refactor) Use Settings class (and TargetSignSpecs), some code moving.
 
 (0.1.0)
 - (bugfix) Take into account the players eye height.

@@ -2,7 +2,6 @@ package me.asofold.bukkit.archer;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,17 +13,17 @@ import me.asofold.bukkit.archer.config.compatlayer.CompatConfigFactory;
 import me.asofold.bukkit.archer.config.compatlayer.ConfigUtil;
 import me.asofold.bukkit.archer.core.PlayerData;
 import me.asofold.bukkit.archer.core.TargetSignSpecs;
+import me.asofold.bukkit.archer.utils.TargetUtil;
+import me.asofold.bukkit.archer.utils.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -39,12 +38,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 public class Archer extends JavaPlugin implements Listener{
-	
-	private final DecimalFormat format = new DecimalFormat("##.##");
+
 	
 	private final Map<String, PlayerData> players = new HashMap<String, PlayerData>(20);
 
-	private static final String msgStart = ChatColor.DARK_GRAY + "[Archer] " + ChatColor.GRAY;
+	public static final String msgStart = ChatColor.DARK_GRAY + "[Archer] " + ChatColor.GRAY;
 	
 	private final Settings settings = new Settings();
 
@@ -55,12 +53,6 @@ public class Archer extends JavaPlugin implements Listener{
 		if (exists) cfg.load();
 		if (ConfigUtil.forceDefaults(Settings.getDefaultSettings(), cfg) || !exists) cfg.save();
 		settings.applyConfig(cfg);
-	}
-
-	public Archer(){
-		DecimalFormatSymbols sym = format.getDecimalFormatSymbols();
-		sym.setDecimalSeparator('.');
-		format.setDecimalFormatSymbols(sym);
 	}
 	
 	@Override
@@ -83,8 +75,8 @@ public class Archer extends JavaPlugin implements Listener{
 		}
 		if (len == 1 && cmd.equals("notify")){
 			// toggle notify
-			if (settings.usePermissions && !checkPerm(sender, "archer.notify")) return true;
-			if (!checkPlayer(sender) ) return true;
+			if (settings.usePermissions && !Utils.checkPerm(sender, "archer.notify")) return true;
+			if (!Utils.checkPlayer(sender) ) return true;
 			Player player = (Player) sender;
 			String playerName = player.getName();
 			String lcName = playerName.toLowerCase();
@@ -97,7 +89,7 @@ public class Archer extends JavaPlugin implements Listener{
 			return true;
 		}
 		else if (len == 1 && cmd.equals("reload")){
-			if (!checkPerm(sender, "archer.reload")) return true;
+			if (!Utils.checkPerm(sender, "archer.reload")) return true;
 			reloadSettings();
 			sender.sendMessage("[Archer] Settings reloaded.");
 			return true;
@@ -115,26 +107,6 @@ public class Archer extends JavaPlugin implements Listener{
 		if (data == null) return false;
 		data.clear();
 		return true;
-	}
-
-	private boolean checkPlayer(CommandSender sender) {
-		if (sender instanceof Player) return true;
-		else{
-			sender.sendMessage("[Archer] Only available for players !");
-			return false;
-		}
-	}
-
-	private boolean checkPerm(CommandSender sender, String perm) {
-		if (!hasPermission(sender, perm)){
-			sender.sendMessage(ChatColor.DARK_RED + "You don't have permission.");
-			return false;
-		}
-		else return true;
-	}
-
-	private boolean hasPermission(CommandSender sender, String perm) {
-		return sender.isOp() || sender.hasPermission(perm);
 	}
 
 	@Override
@@ -166,7 +138,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final boolean verbose = settings.verbose;
 		if (verbose) System.out.println("projectile at: " + stringPos(projLoc)); // TODO: REMOVE
 		
-		final Location hitLoc = getHitLocation(projLoc, velocity);
+		final Location hitLoc = TargetUtil.getHitLocation(projLoc, velocity, settings);
 		if (hitLoc == null) return;
 		
 		if (verbose) System.out.println("hit loc at: " + stringPos(hitLoc)); // TODO: REMOVE
@@ -223,7 +195,7 @@ public class Archer extends JavaPlugin implements Listener{
 			cX = mx;
 			cY = hY + t * vY;
 			cZ = hZ + t * vZ;
-			distOff = getLength(my - cY, mz - cZ );
+			distOff = Utils.getLength(my - cY, mz - cZ );
 		}
 		// Not for dy !
 		else if (dz != 0.0){
@@ -232,10 +204,10 @@ public class Archer extends JavaPlugin implements Listener{
 			cX = hX + t * vX;
 			cY = hY + t * vY;
 			cZ = mz;
-			distOff = getLength(mx - cX, my - cY );
+			distOff = Utils.getLength(mx - cX, my - cY );
 		}
 		else throw new RuntimeException("HUH?");
-		
+		final DecimalFormat format = settings.format;
 		if (verbose) System.out.println("dx,dy,dz: " + stringPos(dx, dy, dz)); // TODO: REMOVE
 		if (verbose) System.out.println("middle at: " + stringPos(mx, my, mz)); // TODO: REMOVE
 		if (verbose) System.out.println("corrected hit pos: " +stringPos(cX, cY, cZ) + " -> off by " + format.format(distOff)); // TODO: REMOVE
@@ -253,62 +225,12 @@ public class Archer extends JavaPlugin implements Listener{
 		sendAll(msg, targetLocation, data);
 	}
 	
-	private String stringPos(double x, double y, double z) {
-		return "" + format.format(x) + ", " + format.format(y) + ", " + format.format(z);
+	private final String stringPos(final double x, final double y, final double z) {
+		return Utils.stringPos(x, y, z, settings);
 	}
 
 	private final String stringPos(final Location loc){
-		return "" + format.format(loc.getX()) + ", " + format.format(loc.getY()) + ", " + format.format(loc.getZ());
-	}
-	
-	/**
-	 * Sign hit location;
-	 * @param loc
-	 * @return
-	 */
-	public final Location getHitLocation(Location loc, final Vector velocity) {
-	//		loc = loc.add(direction.normalize().multiply(arrowLength));
-		final Block hitBlock = loc.getBlock();
-		int type = hitBlock.getTypeId();
-		final double l = velocity.length();
-		double done = 0.0;
-		final double step = settings.step;
-		final boolean verbose = settings.verbose;
-		if (type == 0){
-			// TODO: also for other block types !
-			// TODO: optimize: find block transitions directly (one by one).
-			final Vector add = velocity.clone().multiply(step/l);
-			while (type == 0){
-				loc = loc.add(add);
-				if (verbose) System.out.println("EXTEND: " + stringPos(loc)); // TODO: REMOVE
-				type = loc.getBlock().getTypeId();
-				done += step;
-				if (done >= l) break;
-			}
-			
-		}
-		
-		if (verbose) System.out.println("Hit type ("+format.format(l)+"): "+ type); // TODO: REMOVE
-		
-		if (type != Material.WALL_SIGN.getId()) return null;
-		return loc;
-	}
-
-	private double getLength(double x1, double x2) {
-		return Math.sqrt(x1*x1 + x2*x2);
-	}
-
-	public static final double getHitDist(final Location loc){
-		return loc.distance(new Location(loc.getWorld(), 0.5 + (double) loc.getBlockX(), 0.5 + (double) loc.getBlockY(), 0.5 + (double) loc.getBlockZ()));
-	}
-	
-	/**
-	 * Always positive distance to 0.5 .
-	 * @param coord
-	 * @return
-	 */
-	public static final double getHitDist(final double coord){
-		return Math.abs(0.5 - Math.abs(Math.floor(coord)));
+		return Utils.stringPos(loc, settings);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = true)
@@ -388,20 +310,12 @@ public class Archer extends JavaPlugin implements Listener{
 	 * @return
 	 */
 	public final PlayerData getPlayerData(final Projectile projectile){
-		final Player player = getPlayer(projectile);
+		final Player player = Utils.getPlayer(projectile);
 		if (player == null) return null;
 		final PlayerData data = players.get(player.getName().toLowerCase());
 		if ( data == null) return null;
 		data.setPlayer(player);
 		return data;
-	}
-	
-	public static final Player getPlayer(final Projectile projectile){
-		if (!(projectile instanceof Arrow)) return null;
-		final Entity entity = projectile.getShooter();
-		if (entity == null) return null;
-		else if (entity instanceof Player) return (Player) entity;
-		else return null;
 	}
 
 }

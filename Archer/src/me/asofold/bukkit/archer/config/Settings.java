@@ -1,5 +1,7 @@
 package me.asofold.bukkit.archer.config;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +11,8 @@ import me.asofold.bukkit.archer.config.compatlayer.CompatConfig;
 import me.asofold.bukkit.archer.config.compatlayer.CompatConfigFactory;
 
 public class Settings {
+	
+	public final DecimalFormat format = new DecimalFormat("##.##");
 	
 	/**
 	 * Lines of target (trim applied).
@@ -116,6 +120,12 @@ public class Settings {
 		targetNamePrefix = cfg.getString("target.name.prefix", ref.targetNamePrefix);
 		targetNameSuffix = cfg.getString("target.name.suffix", ref.targetNameSuffix);
 		targetNameDelegator = cfg.getString("target.name.delegator", ref.targetNameDelegator);
+	}
+	
+	public Settings(){
+		DecimalFormatSymbols sym = format.getDecimalFormatSymbols();
+		sym.setDecimalSeparator('.');
+		format.setDecimalFormatSymbols(sym);
 	}
 	
 	public static  String[] readLines(CompatConfig cfg, String path, boolean trim, boolean stripColor, boolean ignoreCase) {
