@@ -25,12 +25,13 @@ Features
 
 Commands and Permissions
 -----------------------------------------------------------------
+(command, permission, description)
 - /archer reload 
     archer.reload
     To reload the settings.
 - /archer notify
-    Toggle if to take part in the notifications about hitting signs.
     archer.notify
+    Toggle if to take part in the notifications about hitting signs.
 
 
 Configuration
