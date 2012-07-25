@@ -469,7 +469,7 @@ public class Archer extends JavaPlugin implements Listener{
 		for (PlayerData data : players.values()){
 			if (data == exclude) continue;
 			if (data.player == null || !data.player.isOnline()){
-				if (data.mayForget(tsNow, durExpireData)) rem.add(data.playerName.toLowerCase());
+				if (durExpireData > 0 && data.mayForget(tsNow, durExpireData)) rem.add(data.playerName.toLowerCase());
 				continue;
 			}
 			if (restrict){
