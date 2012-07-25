@@ -227,7 +227,7 @@ public class Archer extends JavaPlugin implements Listener{
 		// (Might use StringBuilder here.)
 		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target" + targetName +" at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " distance.";
 		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
-		data.player.sendMessage(ChatColor.WHITE + "----> " +  ChatColor.GRAY + "hits " + specPart);
+		data.player.sendMessage(ChatColor.WHITE + "---> " +  ChatColor.GRAY + "hits " + specPart);
 		sendAll(msg, targetLocation, data);
 	}
 	

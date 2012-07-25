@@ -48,7 +48,8 @@ Configuration
     Setting both to "" or '' would prevent naming target signs, currently.
 - target.name.delegator: Fourth line indicating that a sign with target name
     in the fourth line (with prefix and/or suffix) should be looked for,
-    starting of the block the hit target sign is attached to.
+    starting of the block the hit target sign is attached to. The search
+    order will be straight, then counter-clockwise.
 - shooter.distance.min|max: Minimum/maximum distance that can lead to
     notifications about hitting target signs. 
     Set to 0 to deactivate.
@@ -121,6 +122,8 @@ Planning
 STACK
 -----------------------------------------------------------------
 
+? consider: option to pop delegating sings that could not find name. 
+
 !(add) statistics about hits (angle, distance + off categorized somehow ?)
 !(add) Angle towards aim + restrictions
 
@@ -137,15 +140,11 @@ STACK
 
 
 
-*** MINIMUM 0.2.0 :
-*** named targets: search signs on attached to block.
-
-
 VERSION HISTORY
 -----------------------------------------------------------------
 
 (0.2.0)
-- (add) Named targets: Direct naming on sign.
+- (add) Named targets: Direct naming on sign, delegate name to sign attached to the same block.
 - (adjust) Different message to shooter than to others.
 - (add) Notify the shooter about hits, even if more far away than notification distance.
 - (adjust) Some messages.
