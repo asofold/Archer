@@ -8,6 +8,19 @@ import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
 public class TargetUtil {
+	
+	/**
+	 * Always positive distance to 0.5 .
+	 * @param coord
+	 * @return
+	 */
+	public static final double getHitDist(final double coord){
+		return Math.abs(0.5 - Math.abs(Math.floor(coord)));
+	}
+	
+	public static final double getHitDist(final Location loc){
+		return loc.distance(new Location(loc.getWorld(), 0.5 + (double) loc.getBlockX(), 0.5 + (double) loc.getBlockY(), 0.5 + (double) loc.getBlockZ()));
+	}
 
 	/**
 	 * Sign hit location;
@@ -41,19 +54,6 @@ public class TargetUtil {
 		
 		if (type != Material.WALL_SIGN.getId()) return null;
 		return loc;
-	}
-
-	public static final double getHitDist(final Location loc){
-		return loc.distance(new Location(loc.getWorld(), 0.5 + (double) loc.getBlockX(), 0.5 + (double) loc.getBlockY(), 0.5 + (double) loc.getBlockZ()));
-	}
-
-	/**
-	 * Always positive distance to 0.5 .
-	 * @param coord
-	 * @return
-	 */
-	public static final double getHitDist(final double coord){
-		return Math.abs(0.5 - Math.abs(Math.floor(coord)));
 	}
 
 }
