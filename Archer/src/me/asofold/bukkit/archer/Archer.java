@@ -155,6 +155,8 @@ public class Archer extends JavaPlugin implements Listener{
 		
 		// Get middle of sign (!)
 		final BlockFace attached = ((Attachable) sign.getData()).getAttachedFace();
+		
+		// TODO: get rid of block getting , set increments by block face !
 		final Block attachedTo = hitBlock.getRelative(attached); 
 		
 		// Hit block (sign) coordinates.
@@ -219,9 +221,13 @@ public class Archer extends JavaPlugin implements Listener{
 		if (settings.shootDistMin > 0.0 && shootDist < settings.shootDistMin) return;
 		if (settings.shootDistMax > 0.0 && shootDist > settings.shootDistMax) return;
 		final int off = (int) Math.round((1000.0 - 1000.0 * (settings.signHitDist - distOff) / settings.signHitDist) / settings.offDivisor);
-		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " blocks distance.";
+		final String targetName;
+		if (specs.targetName.isEmpty()) targetName = "";
+		else targetName = " (" + ChatColor.WHITE + specs.targetName + ChatColor.GRAY + ")";
+		// (Might use StringBuilder here.)
+		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target" + targetName +" at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " distance.";
 		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
-		data.player.sendMessage(msgStart + ChatColor.GRAY + "hits " + specPart);
+		data.player.sendMessage(ChatColor.WHITE + "----> " +  ChatColor.GRAY + "hits " + specPart);
 		sendAll(msg, targetLocation, data);
 	}
 	

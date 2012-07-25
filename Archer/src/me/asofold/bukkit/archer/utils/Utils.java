@@ -52,5 +52,35 @@ public class Utils {
 		return Math.sqrt(x1*x1 + x2*x2);
 	}
 
+	/**
+	 * Return content wrapped by prefix and suffix, if both are not set or line does not match, null is returned.
+	 * @param line
+	 * @param prefix Empty for not set.
+	 * @param suffix Empty for not set.
+	 * @return null if invalid definition.
+	 */
+	public static String getWrappedContent(String line, String prefix, String suffix) {
+		boolean hasPrefix = !prefix.isEmpty();
+		if (hasPrefix){
+			if (!line.startsWith(prefix)) return null; // wrong prefix
+			hasPrefix = true;
+		}
+		boolean hasSuffix = !suffix.isEmpty();
+		if (hasSuffix){
+			if (!line.endsWith(suffix)) return null; // wrong suffix
+			hasSuffix = true;
+		}
+		if (!hasPrefix && !hasSuffix) return null;
+		return line.substring(hasPrefix?prefix.length() : 0, hasSuffix?(line.length() - suffix.length()) : 0);
+	}
+
+	public static final String getLine(final String[] lines, final int index, final boolean trim, final boolean stripColor, final boolean ignoreCase){
+		String line = lines[index];
+		if (trim) line = line.trim();
+		if (stripColor) line = ChatColor.stripColor(line);
+		if (ignoreCase) line = line.toLowerCase();
+		return line;
+	}
+
 
 }
