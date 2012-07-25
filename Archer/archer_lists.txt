@@ -112,9 +112,33 @@ STACK
 -----------------------------------------------------------------
 
 
+*** categorize / sort in :
+? step: check if is longer than l first !
+
+?opt: getHitPos: use coordinates and only get the block if block really changed 
+
+!(add) Contests with variable parameters: /archer contest create myconstest123 bestof3 mindist=20
+!(add) Configurable contests, that players can subscribe to (number of shots, max-fail, way of counting, target-names/positions).
+
+!(add) Named targets (by sign) a) fourth line prefix + suffix b) fourth line indicating where the name is found!
+
+!(add) configurable hit message:  player name, display name, shooting distance, off target, arrow speed (!), ?arrow initial speed, target coordinates? ! 
+
+
+
+
+*** MINIMUM 0.2.0 :
+*** named targets
+*** message shooter always
+
+
+
 
 VERSION HISTORY
 -----------------------------------------------------------------
+
+(0.2.0)
+- (add) Notify the shooter about hits, even if more far away than notification distance.
 
 (0.1.0)
 - (bugfix) Take into account the players eye height.

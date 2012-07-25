@@ -357,12 +357,18 @@ public class Archer extends JavaPlugin implements Listener{
 		
 		if (distOff > signHitDist) return;
 		// Hit !
+		final Location targetLocation = new Location(hitLoc.getWorld(), mx,my,mz);
 		final double shootDist = launchLoc.toVector().distance(new Vector(mx,my,mz));
 		if (shootDistMin > 0.0 && shootDist < shootDistMin) return;
 		if (shootDistMax > 0.0 && shootDist > shootDistMax) return;
 		final int off = (int) Math.round((1000.0 - 1000.0 * (signHitDist - distOff) / signHitDist) / offDivisor);
-		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits a target " + ChatColor.YELLOW + off + ChatColor.GRAY + " off at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " blocks distance.";
-		sendAll(msg, new Location(hitLoc.getWorld(), mx,my,mz));
+		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " blocks distance.";
+		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits a target " + specPart;
+		if (data.bPlayer.isOnline() && data.bPlayer.getLocation().distance(targetLocation) > notifyDistance){
+			// Ensure player is messaged.
+			data.bPlayer.sendMessage(ChatColor.BLACK + "[Archer] " + specPart);
+		}
+		sendAll(msg, targetLocation);
 	}
 	
 	private String stringPos(double x, double y, double z) {
