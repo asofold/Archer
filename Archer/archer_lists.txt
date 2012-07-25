@@ -113,6 +113,8 @@ Planning
 STACK
 -----------------------------------------------------------------
 
+!(add) statistics about hits (angle, distance + off categorized somehow ?)
+!(add) Angle towards aim + restrictions
 
 *** categorize / sort in :
 ? step: check if is longer than l first !
@@ -131,8 +133,6 @@ STACK
 
 *** MINIMUM 0.2.0 :
 *** named targets
-
-
 
 
 VERSION HISTORY
