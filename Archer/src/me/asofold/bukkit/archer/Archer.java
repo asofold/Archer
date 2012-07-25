@@ -327,25 +327,23 @@ public class Archer extends JavaPlugin implements Listener{
 		final double vY = velocity.getY();
 		final double vZ = velocity.getZ();
 		
-//		if (dx != 0.0) distOff = getLength(my - hY, mz - hZ);
-//		else if (dy != 0.0) distOff = getLength(mx - hX, mz - hZ);
-//		else if (dz != 0.0) distOff = getLength(mx - hX, my - hY);
-		// TODO: time correction ?
+		// add time correction ? [Rather not, the arrow has hit, so calculate where it would actually hit.]
+		
+		// Corrected coordinates + distance off target.
 		final double cX;
 		final double cY;
 		final double cZ;
 		if (dx != 0.0){
 			final double t = (mx - hX)/vX;
-//			final double t = (mx -.5 - hX)/vX;
 			cX = mx;
 			cY = hY + t * vY;
 			cZ = hZ + t * vZ;
 			distOff = getLength(my - cY, mz - cZ );
 		}
-//		else if (dy != 0.0) distOff = getLength(mx - hX - (my -.5 - hY)/vY * vX, mz - hZ - (my -.5 - hY)/vY * vZ );
+		// Not for dy !
 		else if (dz != 0.0){
 			final double t = (mz - hZ)/vZ;
-//			final double t = (mz -.5 - hZ)/vZ;
+
 			cX = hX + t * vX;
 			cY = hY + t * vY;
 			cZ = mz;
