@@ -1,6 +1,6 @@
-package me.asofold.bukkit.archer.utils;
+package me.asofold.bpl.archer.utils;
 
-import me.asofold.bukkit.archer.config.Settings;
+import me.asofold.bpl.archer.config.Settings;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

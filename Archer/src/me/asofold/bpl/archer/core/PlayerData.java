@@ -1,4 +1,4 @@
-package me.asofold.bukkit.archer.core;
+package me.asofold.bpl.archer.core;
 
 import java.util.HashMap;
 import java.util.Map;

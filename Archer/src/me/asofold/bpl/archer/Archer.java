@@ -1,4 +1,4 @@
-package me.asofold.bukkit.archer;
+package me.asofold.bpl.archer;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -7,14 +7,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import me.asofold.bukkit.archer.config.Settings;
-import me.asofold.bukkit.archer.config.compatlayer.CompatConfig;
-import me.asofold.bukkit.archer.config.compatlayer.CompatConfigFactory;
-import me.asofold.bukkit.archer.config.compatlayer.ConfigUtil;
-import me.asofold.bukkit.archer.core.PlayerData;
-import me.asofold.bukkit.archer.core.TargetSignSpecs;
-import me.asofold.bukkit.archer.utils.TargetUtil;
-import me.asofold.bukkit.archer.utils.Utils;
+import me.asofold.bpl.archer.config.Settings;
+import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
+import me.asofold.bpl.archer.config.compatlayer.CompatConfigFactory;
+import me.asofold.bpl.archer.config.compatlayer.ConfigUtil;
+import me.asofold.bpl.archer.core.PlayerData;
+import me.asofold.bpl.archer.core.TargetSignSpecs;
+import me.asofold.bpl.archer.utils.TargetUtil;
+import me.asofold.bpl.archer.utils.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

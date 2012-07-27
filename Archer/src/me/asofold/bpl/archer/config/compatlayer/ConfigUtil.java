@@ -1,4 +1,4 @@
-package me.asofold.bukkit.archer.config.compatlayer;
+package me.asofold.bpl.archer.config.compatlayer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

@@ -146,6 +146,9 @@ STACK
 VERSION HISTORY
 -----------------------------------------------------------------
 
+(1.0.0)
+- (CHANGE) Package naming.
+
 (0.2.0)
 - (add) Named targets: Direct naming on sign, delegate name to sign attached to the same block.
 - (adjust) Different message to shooter than to others.

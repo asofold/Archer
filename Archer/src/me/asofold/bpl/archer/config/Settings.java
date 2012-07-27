@@ -1,4 +1,4 @@
-package me.asofold.bukkit.archer.config;
+package me.asofold.bpl.archer.config;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 
-import me.asofold.bukkit.archer.config.compatlayer.CompatConfig;
-import me.asofold.bukkit.archer.config.compatlayer.CompatConfigFactory;
+import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
+import me.asofold.bpl.archer.config.compatlayer.CompatConfigFactory;
 
 public class Settings {
 	
