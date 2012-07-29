@@ -146,6 +146,9 @@ STACK
 VERSION HISTORY
 -----------------------------------------------------------------
 
+(1.0.1)
+- (bugfix) Remove dependency of plshared.
+
 (1.0.0)
 - (CHANGE) Package naming.
 

@@ -1,8 +1,6 @@
 name: Archer
 main: me.asofold.bpl.archer.Archer
-version: 1.0.0
-depend:
-- PluginLibSharedLibrary
+version: 1.0.1
 
 commands:
   archer:
