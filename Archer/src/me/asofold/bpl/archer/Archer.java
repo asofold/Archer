@@ -56,8 +56,7 @@ public class Archer extends JavaPlugin implements Listener{
 	}
 	
 	@Override
-	public boolean onCommand(CommandSender sender, Command command,
-			String label, String[] args) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command != null) label = command.getLabel();
 		label = label.toLowerCase();
 		
