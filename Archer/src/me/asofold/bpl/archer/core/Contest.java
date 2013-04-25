@@ -1,13 +1,10 @@
 package me.asofold.bpl.archer.core;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
-import me.asofold.bpl.archer.core.properties.Property;
-import me.asofold.bpl.archer.core.properties.PropertyHolder;
+import me.asofold.bpl.archer.config.properties.ConfigPropertyHolder;
+import me.asofold.bpl.archer.config.properties.Property;
 
-public class Contest extends PropertyHolder{
+public class Contest extends ConfigPropertyHolder{
 	
 	public String name;
 	public String owner;
@@ -53,17 +50,10 @@ public class Contest extends PropertyHolder{
 		setAliases(); // Done here to be sure never to mix up order.
 	}
 	
-	// get info message
 	public void fromConfig(CompatConfig cfg, String prefix){
 		name = cfg.getString(prefix + "name");
 		owner = cfg.getString(prefix + "owner");
-		Set<String> done = new HashSet<String>(properties.size());
-		for (Property property : properties.values()){
-			if (done.contains(property.name)) continue;
-			String valDef = cfg.getString(prefix + property.name);
-			if (valDef != null) property.fromString(valDef);
-			done.add(property.name);
-		}
+		super.fromConfig(cfg, prefix);
 	}
 	
 	@Override

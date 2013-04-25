@@ -1,4 +1,4 @@
-package me.asofold.bpl.archer.core.properties;
+package me.asofold.bpl.archer.config.properties;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;

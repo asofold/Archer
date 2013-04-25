@@ -1,4 +1,4 @@
-package me.asofold.bpl.archer.core.properties;
+package me.asofold.bpl.archer.config.properties;
 
 /**
  * Auxiliary class for in place changing of properties.
@@ -71,7 +71,7 @@ public class Property {
 			set(Double.parseDouble(valDef));
 		}
 		catch(Throwable t){
-			
+			// TODO: Failure policy.
 		}
 	}
 	
