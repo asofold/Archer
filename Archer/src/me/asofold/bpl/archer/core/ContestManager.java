@@ -33,7 +33,7 @@ public class ContestManager {
 	}
 	
 	/**
-	 * Get available contests for the currrent location the player is at (convenience method).
+	 * Get available contests for the current location the player is at (convenience method).
 	 * @param player
 	 * @return
 	 */
@@ -41,10 +41,20 @@ public class ContestManager {
 		return getAvailableContests(player, player.getLocation());
 	}
 	
+	/**
+	 * Get all available contests for the player at the given location.<br>
+	 * TODO: Might do without the player ?
+	 * 
+	 * @param player
+	 * @param loc
+	 * @return
+	 */
 	public Collection<Contest> getAvailableContests(Player player, Location loc){
 		final List<Contest> found = new LinkedList<Contest>();
-		// TODO: Implement at least per world.
-		found.addAll(contests.values());
+		final Set<Contest> perWorld = worldMap.get(loc.getWorld().getName().toLowerCase());
+		if (perWorld != null){
+			found.addAll(perWorld);
+		}
 		return found;
 	}
 	

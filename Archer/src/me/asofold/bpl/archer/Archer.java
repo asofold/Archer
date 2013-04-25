@@ -33,6 +33,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.material.Attachable;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -234,6 +235,17 @@ public class Archer extends JavaPlugin implements Listener{
 		final Location launchLoc = data.removeLaunch(id);
 		if (launchLoc == null) return;
 		// TODO: later: check if contest + add miss / hit events
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
+	public void onJoin(final PlayerJoinEvent event){
+		if (players.isEmpty()) return;
+		final Player player = event.getPlayer();
+		final String lcName = player.getName().toLowerCase();
+		final PlayerData data = players.get(lcName);
+		if (data != null){
+			data.setPlayer(player);
+		}
 	}
 	
 	public void sendAll(String msg, boolean label, Location ref, PlayerData exclude){

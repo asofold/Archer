@@ -62,8 +62,14 @@ public class PlayerData {
 		return tsNow - tsActivity > durExpire;
 	}
 
-	public void setPlayer(Player player) {
+	/**
+	 * 
+	 * @param player
+	 * @return The given player instance for chaining.
+	 */
+	public Player setPlayer(Player player) {
 		this.player = player;
 		tsActivity = System.currentTimeMillis();
+		return player;
 	}
 }
