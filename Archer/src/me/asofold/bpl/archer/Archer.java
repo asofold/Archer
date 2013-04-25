@@ -270,9 +270,8 @@ public class Archer extends JavaPlugin implements Listener{
 		final long tsNow = System.currentTimeMillis();
 		for (PlayerData data : players.values()){
 			if (data == exclude) continue;
-			if (data.player == null || !data.player.isOnline()){
-				if (durExpireData > 0 && data.mayForget(tsNow, durExpireData)) rem.add(data.playerName.toLowerCase());
-				continue;
+			if (durExpireData > 0 && data.mayForget(tsNow, durExpireData)){
+				rem.add(data.playerName.toLowerCase());
 			}
 			if (restrict){
 				if (!worldName.equals(data.player.getWorld().getName())) continue;
@@ -290,10 +289,9 @@ public class Archer extends JavaPlugin implements Listener{
 		List<String> rem = new LinkedList<String>();
 		final long tsNow = System.currentTimeMillis();
 		for (PlayerData data : players.values()){
-			if (data.player == null || !data.player.isOnline()){
-				if (data.mayForget(tsNow, settings.durExpireData)) rem.add(data.playerName.toLowerCase());
-				continue;
-			}		
+			if (data.mayForget(tsNow, settings.durExpireData)){
+				rem.add(data.playerName.toLowerCase());
+			}	
 		}
 		for (String name : rem){
 			players.remove(name);

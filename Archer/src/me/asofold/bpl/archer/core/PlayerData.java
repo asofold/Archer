@@ -52,14 +52,31 @@ public class PlayerData {
 	}
 	
 	/**
-	 * Use to see if data can be removed.<br>
+	 * Use to see if data can be removed. Might perform minimum cleanup. <br>
 	 * This will respect if the player is in some contest and might be in when re-logging, later.
 	 * @param tsNow
 	 * @param durExpire
 	 * @return
 	 */
 	public boolean mayForget(long tsNow, long durExpire){
-		return tsNow - tsActivity > durExpire;
+		final long diff = tsNow - tsActivity;
+		if (diff > 30000){
+			// Cleanup independent of other aspects.
+			launchs.clear();
+		}
+		if (diff < 0){
+			// Safety check.
+			tsActivity = tsNow;
+			return false;
+		}
+		else if (player == null || !player.isOnline()){
+			// Might expire.
+			return diff > durExpire;
+		}
+		else{
+			// Online = active (at present).
+			return false;
+		}
 	}
 
 	/**
@@ -72,4 +89,5 @@ public class PlayerData {
 		tsActivity = System.currentTimeMillis();
 		return player;
 	}
+	
 }
