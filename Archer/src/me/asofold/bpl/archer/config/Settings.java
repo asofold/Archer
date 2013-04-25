@@ -52,8 +52,6 @@ public class Settings {
 
 	public boolean ignoreCase = false;
 
-	public boolean usePermissions = true;
-
 	public long durExpireData = 20 * 60 * 1000;
 
 	public String targetNamePrefix = ">>";
@@ -88,7 +86,6 @@ public class Settings {
 		cfg.set("offset.z", ref.offsetZ);
 		cfg.set("off-target.divisor", ref.offDivisor);
 		cfg.set("verbose", ref.verbose);
-		cfg.set("permissions.use", ref.usePermissions);
 		cfg.set("players.expire-offline", ref.durExpireData / 60 / 1000); // Set as minutes.
 		return cfg;
 	}
@@ -115,7 +112,6 @@ public class Settings {
 		trim = cfg.getBoolean("target.trim", ref.trim);
 		stripColor = cfg.getBoolean("target.stripColor", ref.stripColor);
 		ignoreCase = cfg.getBoolean("target.ignore-case", ref.ignoreCase);
-		usePermissions = cfg.getBoolean("permissions.use", ref.usePermissions);
 		durExpireData = cfg.getLong("players.expire-offline", ref.durExpireData) * 60 * 1000; // Set as minutes.
 		targetNamePrefix = cfg.getString("target.name.prefix", ref.targetNamePrefix);
 		targetNameSuffix = cfg.getString("target.name.suffix", ref.targetNameSuffix);

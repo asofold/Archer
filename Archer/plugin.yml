@@ -1,8 +1,40 @@
 name: Archer
 main: me.asofold.bpl.archer.Archer
-version: 1.0.2
+version: 1.1.0
 
 commands:
   archer:
     description: 'Commands to subscribe for archer services.'
-    usage: '/archer.... for: notify | reload'
+    usage: '/<command>.... + notify | reload | contest ...|'
+    permission: archer.access.command.archer
+
+permissions:
+  
+  archer.access.command.archer:
+    description: Access the archer command(s) at all.
+    default: op
+  
+  archer.access.command.contest:
+    description: Access the archer/contest command(s) at all.
+    default: op
+    children:
+      archer.access.command.archer: true
+  
+  archer.notify:
+    description: Toggle notifications about hitting targets (and possibly other).
+    default: op
+    children:
+      archer.access.command.archer: true
+  
+  archer.reload:
+    description: Reload the configuration.
+    default: op
+    children:
+      archer.access.command.archer: true
+  
+  archer.normaluser:
+    description: All permissions for a normal user, whatever that is. May use features but not create contests.
+    default: true
+    children:
+      archer.notify: true
+ 

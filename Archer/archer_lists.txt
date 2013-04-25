@@ -139,31 +139,32 @@ STACK
 !(add) Configurable contests, that players can subscribe to (number of shots, max-fail, way of counting, target-names/positions).
 
 !(add) configurable hit message:  player name, display name, shooting distance, off target, arrow speed (!), ?arrow initial speed, target coordinates? ! 
-
-
 !(add) confine to certain targets (only hitting those counts) [later: contest defines confine + side conditions]
 
-VERSION HISTORY
------------------------------------------------------------------
+*** NEXT RELEAS
 
-(1.0.1)
-- (bugfix) Remove dependency of plshared.
+* Consistency
+- Add a timeout for stored arrows and check them now and then (chunk unloading, etc.). Needs storing the time.
+- Set player to null on logout/kick ?
 
-(1.0.0)
-- (CHANGE) Package naming.
+* Contests
 
-(0.2.0)
-- (add) Named targets: Direct naming on sign, delegate name to sign attached to the same block.
-- (adjust) Different message to shooter than to others.
-- (add) Notify the shooter about hits, even if more far away than notification distance.
-- (adjust) Some messages.
-- (add) Expiration for data / notification state of offline players (configurable duration).
-- (refactor) Use Settings class (and TargetSignSpecs), some code moving.
+! add flag + permission and/or property for persisting a newly created contest.
 
-(0.1.0)
-- (bugfix) Take into account the players eye height.
-- (add) Allow use without permissions.
-- (bugfix) Remove debug output for readLines.
+- Contest framework. At first global, but design for worlds and location-specific (worldguard add-in).
+- Command structure: list contests, join or leave one or all.
+    - contest [info [<contest>|*]] <- list all contests and contests that are active fro oneself
+    - contest info <contest> <- Specific rules info, including players in.
+    - contest leave|join [<contest>|*]
+    - contest create <contest> [...specific type info...]
+    - contest edit <contest> <property> <...specific value(s)...>
+- hits, hits_taken, "health", score - health gets decreased by the score the shooter gets (self hits don't add to score, but health).
+- score consists of something like speed x distance.
+- Possible ends: player death, health depleted, hits_taken max reached, hits reached, score reached, world change, player leaves, ...
+- Rewards (...)
 
-(0.0.0) Initial version.
+... command to automatically set lines for a placed sign.
+... contest logic + notifications [change notify to also display if contests are available]
+... contest join + leave commands
 
+... read  contests from contests.yml

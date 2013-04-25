@@ -1,6 +1,7 @@
 package me.asofold.bpl.archer.core;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
@@ -16,7 +17,10 @@ public class PlayerData {
 	
 	public Player player = null;
 	
-	public long tsActivity = System.currentTimeMillis(); 
+	public long tsActivity = System.currentTimeMillis();
+	
+	/** Active contests. */
+	protected final Map<String, ContestData> activeContests = new LinkedHashMap<String, ContestData>(); 
 	
 	/**
 	 * Entity id to launch location.

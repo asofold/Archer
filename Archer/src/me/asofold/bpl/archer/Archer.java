@@ -2,15 +2,17 @@ package me.asofold.bpl.archer;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import me.asofold.bpl.archer.command.ArcherCommand;
 import me.asofold.bpl.archer.config.Settings;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfigFactory;
 import me.asofold.bpl.archer.config.compatlayer.ConfigUtil;
+import me.asofold.bpl.archer.core.ContestManager;
 import me.asofold.bpl.archer.core.PlayerData;
 import me.asofold.bpl.archer.core.TargetSignSpecs;
 import me.asofold.bpl.archer.utils.TargetUtil;
@@ -22,8 +24,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -40,7 +40,9 @@ import org.bukkit.util.Vector;
 public class Archer extends JavaPlugin implements Listener{
 
 	
-	private final Map<String, PlayerData> players = new HashMap<String, PlayerData>(20);
+	private final Map<String, PlayerData> players = new LinkedHashMap<String, PlayerData>(20);
+	
+	private final ContestManager contestMan = new ContestManager();
 
 	public static final String msgStart = ChatColor.DARK_GRAY + "[Archer] " + ChatColor.GRAY;
 	
@@ -54,63 +56,34 @@ public class Archer extends JavaPlugin implements Listener{
 		if (ConfigUtil.forceDefaults(Settings.getDefaultSettings(), cfg) || !exists) cfg.save();
 		settings.applyConfig(cfg);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (command != null) label = command.getLabel();
-		label = label.toLowerCase();
-		
-		if (label.equals("archer")){
-			return archerCommand(sender, args);
-		}
-		return false;
-	}
-
-	private boolean archerCommand(CommandSender sender, String[] args) {
-		int len = args.length;
-		String cmd = null;
-		if (len > 0){
-			cmd = args[0].trim().toLowerCase();
-		}
-		if (len == 1 && cmd.equals("notify")){
-			// toggle notify
-			if (settings.usePermissions && !Utils.checkPerm(sender, "archer.notify")) return true;
-			if (!Utils.checkPlayer(sender) ) return true;
-			Player player = (Player) sender;
-			String playerName = player.getName();
-			String lcName = playerName.toLowerCase();
-			if (removeData(lcName)){
-				player.sendMessage(msgStart + "You " + ChatColor.RED + "unsubscribed" + ChatColor.GRAY + " from archer events.");
-				return true;
-			}
-			players.put(lcName, new PlayerData(player));
-			player.sendMessage(msgStart + "You " + ChatColor.GREEN + "subscribed" + ChatColor.GRAY + " to archer events.");
-			return true;
-		}
-		else if (len == 1 && cmd.equals("reload")){
-			if (!Utils.checkPerm(sender, "archer.reload")) return true;
-			reloadSettings();
-			sender.sendMessage("[Archer] Settings reloaded.");
-			return true;
-		}
-		return false;
-	}
 
 	/**
-	 * 
+	 * Public until moved somewhere else.
 	 * @param lcName
 	 * @return If data was present.
 	 */
-	private boolean removeData(String lcName) {
+	public boolean removePlayerData(String lcName) {
 		PlayerData data = players.remove(lcName);
 		if (data == null) return false;
 		data.clear();
 		return true;
 	}
+	
+	/**
+	 * Public until moved elsewhere.
+	 * @param player
+	 * @return
+	 */
+	public PlayerData createPlayerData(final Player player) {
+		final PlayerData data = new PlayerData(player);
+		players.put(player.getName().toLowerCase(), data);
+		return data;
+	}
 
 	@Override
 	public void onEnable() {
 		reloadSettings();
+		getCommand("archer").setExecutor(new ArcherCommand(this));
 		getServer().getPluginManager().registerEvents(this, this);
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
@@ -227,7 +200,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target" + targetName +" at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " distance.";
 		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
 		data.player.sendMessage(ChatColor.WHITE + "---> " +  ChatColor.GRAY + "hits " + specPart);
-		sendAll(msg, targetLocation, data);
+		sendNotify(msg, targetLocation, data);
 	}
 	
 	private final String stringPos(final double x, final double y, final double z) {
@@ -264,11 +237,17 @@ public class Archer extends JavaPlugin implements Listener{
 	}
 	
 	public void sendAll(String msg, boolean label, Location ref, PlayerData exclude){
-		if (!label) sendAll(msg, ref, exclude);
-		else sendAll(msgStart + msg, ref, exclude);
+		if (!label) sendNotify(msg, ref, exclude);
+		else sendNotify(msgStart + msg, ref, exclude);
 	}
 	
-	public void sendAll(String msg, Location ref, PlayerData exclude){
+	/**
+	 * Send a notify message to all players who subscribed to notify events and are within range if the ref Location is given.
+	 * @param msg
+	 * @param ref May be null.
+	 * @param exclude
+	 */
+	public void sendNotify(String msg, Location ref, PlayerData exclude){
 		boolean distance = settings.notifyDistance > 0.0;
 		boolean restrict = ref != null && (!settings.notifyCrossWorld || distance);
 		String worldName = null;
@@ -317,10 +296,39 @@ public class Archer extends JavaPlugin implements Listener{
 	public final PlayerData getPlayerData(final Projectile projectile){
 		final Player player = Utils.getPlayer(projectile);
 		if (player == null) return null;
+		else return getPlayerData(player);
+	}
+	
+	/**
+	 * Does not create new data.
+	 * @param player
+	 * @return
+	 */
+	public PlayerData getPlayerData(final Player player) {
 		final PlayerData data = players.get(player.getName().toLowerCase());
-		if ( data == null) return null;
-		data.setPlayer(player);
-		return data;
+		if (data == null) return null;
+		else{
+			data.setPlayer(player);
+			return data;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param player
+	 * @param create Creates and registers a new PlayerData instance if set to true.
+	 * @return
+	 */
+	public PlayerData getPlayerData(final Player player, final boolean create) {
+		final PlayerData data = getPlayerData(player);
+		if (!create || data != null) return data;
+		else{
+			return createPlayerData(player);
+		}
+	}
+
+	public ContestManager getContestManager(){
+		return contestMan;
 	}
 
 }
