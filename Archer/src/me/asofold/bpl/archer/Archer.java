@@ -327,7 +327,7 @@ public class Archer extends JavaPlugin implements Listener{
 				final Entity damaged = event.getEntity();
 				if (damaged instanceof Player){
 					final PlayerData damagedData = getPlayerData((Player) damaged);
-					if (damagedData != null){
+					if (damagedData != null && data != damagedData){
 						contestMan.onProjectileHit(data, launchLoc, projectile.getLocation(), damagedData);
 					}
 				}
