@@ -12,8 +12,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import me.asofold.bpl.archer.Archer;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
+import me.asofold.bpl.archer.utils.Utils;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 /**
@@ -225,8 +228,11 @@ public class ContestManager {
 		if (data.activeContests.isEmpty() || damagedData.activeContests.isEmpty()){
 			return;
 		}
+		Utils.sendMessage(data, Archer.msgStart + "Hit: " + ChatColor.GREEN + damagedData.playerName);
+		Utils.sendMessage(damagedData, Archer.msgStart + "Hit by: " + ChatColor.RED + damagedData.playerName);
 		final double distance = launchLoc.distance(hitLoc);
 		for (final ContestData cd : new ArrayList<ContestData>(data.activeContests.values())){
+			// (Use copy because of endContest calls.)
 			// TODO: Might remove if shots used up... 
 			final String key = cd.contest.name.toLowerCase();
 			if (!damagedData.activeContests.containsKey(key)) continue;

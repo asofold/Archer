@@ -3,6 +3,7 @@ package me.asofold.bpl.archer.utils;
 import java.util.Collection;
 
 import me.asofold.bpl.archer.config.Settings;
+import me.asofold.bpl.archer.core.PlayerData;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -102,6 +103,12 @@ public class Utils {
         }
         return builder.toString();
     }
+
+	public static void sendMessage(PlayerData data, String message) {
+		if (data.player != null && data.player.isOnline()){
+			data.player.sendMessage(message);
+		}
+	}
 
 
 }

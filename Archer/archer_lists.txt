@@ -180,6 +180,8 @@ implement timestamp checking to prevent spamming join+leave
 
 ***
 
+message scheduler...
+
 summaries...
 
 move iterations over cd to contestmanager (iterator...)
