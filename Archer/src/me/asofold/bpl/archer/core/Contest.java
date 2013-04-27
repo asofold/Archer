@@ -59,12 +59,12 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 	
 	// TODO: Win hits can too easily be abuse with teaming up.
 //	public Property winHits = setProperty("win-hits", 0, Integer.MAX_VALUE, 0);
-	public Property lossHits = setProperty("loss-hits", 0, Integer.MAX_VALUE, 10.0);
+	public Property lossHits = setProperty("loss-hits", 0, Integer.MAX_VALUE, 5.0);
 //	public Property winHitBalance = setProperty("win-hit-balance", 0, Integer.MAX_VALUE, 0);
 	// lossHitBalance
 	
 //	public Property winScore = setProperty("win-score", 0, Double.MAX_VALUE, 0);
-	public Property lossScore = setProperty("loss-score", 0, Integer.MAX_VALUE, 150.0);
+	public Property lossScore = setProperty("loss-score", 0, Integer.MAX_VALUE, 100.0);
 //	public Property winScoreBalance = setProperty("win-score-balance", Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
 	// TODO: lossScoreBalance
 	
