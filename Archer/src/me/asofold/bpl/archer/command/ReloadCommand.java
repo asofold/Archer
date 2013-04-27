@@ -18,7 +18,7 @@ public class ReloadCommand extends AbstractCommand<Archer> {
 		if (args.length != 1){
 			return false;
 		}
-		access.reloadSettings();
+		access.reloadSettingsAndData();
 		sender.sendMessage("[Archer] Settings reloaded.");
 		return true;
 	}

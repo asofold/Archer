@@ -1,9 +1,9 @@
 package me.asofold.bpl.archer.config.properties;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 
@@ -59,9 +59,8 @@ public class PropertyHolder {
 		String[] from = new String[]{"-", "_"};
 		String[] to = new String[]{"-", "_", ""};
 		Set<String> candidates = new LinkedHashSet<String>(40);
-		for (Entry<String, Property> entry : properties.entrySet()){
-			String key = entry.getKey();
-			Property value = entry.getValue();
+		for (final Property property : new ArrayList<Property>(properties.values())){
+			String key = property.name;
 			for (String find : from){
 				for (String replace : to){
 					String newKey = key.replace(find, replace);
@@ -74,7 +73,7 @@ public class PropertyHolder {
 			candidates.add(key.toUpperCase());
 			for (String newKey : candidates){
 				if (!newKey.equals(key) && !properties.containsKey(newKey)){
-					properties.put(newKey, value);
+					properties.put(newKey, property);
 				}
 			}
 			candidates.clear();

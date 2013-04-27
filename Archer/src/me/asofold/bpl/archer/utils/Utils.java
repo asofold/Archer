@@ -1,5 +1,7 @@
 package me.asofold.bpl.archer.utils;
 
+import java.util.Collection;
+
 import me.asofold.bpl.archer.config.Settings;
 
 import org.bukkit.ChatColor;
@@ -81,6 +83,25 @@ public class Utils {
 		if (ignoreCase) line = line.toLowerCase();
 		return line;
 	}
+	
+	/**
+     * 
+     * @param parts
+     * @param link can be null
+     * @return
+     */
+    public static final String joinObjects(final Collection<?> parts, final String link){
+        final StringBuilder builder = new StringBuilder();
+        int i = 0;
+        final int max = parts.size();
+        for (final Object part : parts){
+            if (part == null) builder.append("<null>");
+            else builder.append(part.toString());
+            i++;
+            if ( i<max && link!=null ) builder.append(link);
+        }
+        return builder.toString();
+    }
 
 
 }

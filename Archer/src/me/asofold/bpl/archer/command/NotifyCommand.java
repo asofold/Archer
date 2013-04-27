@@ -2,6 +2,7 @@ package me.asofold.bpl.archer.command;
 
 import me.asofold.bpl.archer.Archer;
 import me.asofold.bpl.archer.config.Permissions;
+import me.asofold.bpl.archer.core.PlayerData;
 import me.asofold.bpl.archer.utils.Utils;
 
 import org.bukkit.ChatColor;
@@ -22,15 +23,22 @@ public class NotifyCommand extends AbstractCommand<Archer> {
 		if (args.length != 1){
 			return false;
 		}
+		
 		Player player = (Player) sender;
-		String playerName = player.getName();
-		String lcName = playerName.toLowerCase();
-		if (access.removePlayerData(lcName)){
-			player.sendMessage(Archer.msgStart + "You " + ChatColor.RED + "unsubscribed" + ChatColor.GRAY + " from archer events.");
-			return true;
+		PlayerData data = access.getPlayerData(player, true);
+		
+		if (data.notifyTargets){
+			data.notifyTargets = false;
+			data.clearLaunchs();
+			player.sendMessage(Archer.msgStart + "You " + ChatColor.RED + "unsubscribed" + ChatColor.GRAY + " from archer target events.");
 		}
-		access.createPlayerData(player);
-		player.sendMessage(Archer.msgStart + "You " + ChatColor.GREEN + "subscribed" + ChatColor.GRAY + " to archer events.");
+		else {
+			data.notifyTargets = true;
+			player.sendMessage(Archer.msgStart + "You " + ChatColor.GREEN + "subscribed" + ChatColor.GRAY + " to archer target events.");
+		}
+		if (data.mayForget()){
+			access.removePlayerData(data);
+		}
 		return true;
 	}
 	

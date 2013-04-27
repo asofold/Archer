@@ -14,9 +14,9 @@ public class ArcherCommand extends AbstractCommand<Archer> {
 	public ArcherCommand(Archer access) {
 		super(access, "archer", Permissions.ACCESS_COMMAND_ARCHER);
 		addSubCommands(
-			new ReloadCommand(access),
+			new ContestCommand(access),
 			new NotifyCommand(access),
-			new ContestCommand(access)
+			new ReloadCommand(access)
 			);
 	}
 

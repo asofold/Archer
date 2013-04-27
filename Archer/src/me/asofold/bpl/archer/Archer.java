@@ -2,16 +2,23 @@ package me.asofold.bpl.archer;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import me.asofold.bpl.archer.command.ArcherCommand;
 import me.asofold.bpl.archer.config.Settings;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfigFactory;
 import me.asofold.bpl.archer.config.compatlayer.ConfigUtil;
+import me.asofold.bpl.archer.core.Contest;
+import me.asofold.bpl.archer.core.ContestData;
 import me.asofold.bpl.archer.core.ContestManager;
 import me.asofold.bpl.archer.core.PlayerData;
 import me.asofold.bpl.archer.core.TargetSignSpecs;
@@ -24,6 +31,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -31,9 +39,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.material.Attachable;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -49,13 +62,57 @@ public class Archer extends JavaPlugin implements Listener{
 	
 	private final Settings settings = new Settings();
 
+	public void reloadSettingsAndData() {
+		// TODO: Might force save stuff ?
+		
+		// Reload config.yml.
+		reloadSettings();
+		// Reload contests.
+		reloadData();
+	}
+	
+	/**
+	 * Reload settings from the config.yml.
+	 */
 	public void reloadSettings() {
+		// Remove all present data.
+		removeAllData();
+		// Reload settings.
 		File file = new File(getDataFolder(), "config.yml");
 		CompatConfig cfg = CompatConfigFactory.getConfig(file);
 		boolean exists = file.exists();
 		if (exists) cfg.load();
 		if (ConfigUtil.forceDefaults(Settings.getDefaultSettings(), cfg) || !exists) cfg.save();
 		settings.applyConfig(cfg);
+	}
+	
+	/**
+	 * Reload contests.
+	 */
+	public void reloadData() {
+		// Remove all present data.
+		removeAllData();
+		// Reload data.
+		File file = new File(getDataFolder(), "contests.yml");
+		CompatConfig cfg = CompatConfigFactory.getConfig(file);
+		boolean exists = file.exists();
+		if (exists) cfg.load();
+		else cfg.save();
+		contestMan.fromConfig(cfg, "");
+	}
+
+	/**
+	 * Remove all contests and all data.
+	 */
+	public void removeAllData() {
+		for (final PlayerData data : players.values()){
+			if (data.player != null && data.player.isOnline()){
+				data.player.sendMessage(msgStart + ChatColor.YELLOW + "Configuration was reloaded, need to re-register.");
+			}
+			data.clear();
+		}
+		players.clear();
+		contestMan.clear();
 	}
 
 	/**
@@ -83,15 +140,24 @@ public class Archer extends JavaPlugin implements Listener{
 
 	@Override
 	public void onEnable() {
-		reloadSettings();
+		reloadSettingsAndData();
 		getCommand("archer").setExecutor(new ArcherCommand(this));
 		getServer().getPluginManager().registerEvents(this, this);
+		// Schedule: Expired data.
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
 				checkExpiredData();
 			}
 		}, 1337, 1337);
+		// Schedule: Contest state checking.
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				contestMan.checkState(true);
+			}
+		}, 200, 200);
+		// Done.
 		super.onEnable();
 	}
 	
@@ -100,12 +166,14 @@ public class Archer extends JavaPlugin implements Listener{
 		if (players.isEmpty()) return;
 		final Projectile projectile = event.getEntity();
 		final PlayerData data = getPlayerData(projectile);
-		if (data == null) return;
+		if (data == null || !data.notifyTargets) return;
 		final int entityId = projectile.getEntityId();
 		final Location launchLoc = data.removeLaunch(entityId);
 		if (launchLoc == null) return;
 		
 		// TODO: later: add miss / hit events
+		// TODO: Might remove if shots used up... 
+		
 		final Vector velocity = projectile.getVelocity();
 		final Location projLoc = projectile.getLocation();
 		final boolean verbose = settings.verbose;
@@ -201,7 +269,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final String specPart = ChatColor.YELLOW.toString() + off + ChatColor.GRAY + " off target" + targetName +" at " + ChatColor.WHITE + format.format(shootDist) + ChatColor.GRAY + " distance.";
 		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
 		data.player.sendMessage(ChatColor.WHITE + "---> " +  ChatColor.GRAY + "hits " + specPart);
-		sendNotify(msg, targetLocation, data);
+		sendNotifyTarget(msg, targetLocation, data);
 	}
 	
 	private final String stringPos(final double x, final double y, final double z) {
@@ -217,9 +285,29 @@ public class Archer extends JavaPlugin implements Listener{
 		if (players.isEmpty()) return;
 		final Projectile projectile = event.getEntity();
 		final PlayerData data = getPlayerData(projectile);
-		if (data == null) return;
-		// Register projectile for aiming.
-		data.addLaunch(projectile.getEntityId(), data.player.getLocation().add(new Vector(0.0, data.player.getEyeHeight(), 0.0))); // projectile.getLocation());
+		if (data == null || data.mayForget()){
+			// mayForget(): not in any contests not subscribed for target notification.
+			return;
+		}
+		// Cleanup.
+		final long tDiff = System.currentTimeMillis() - data.tsActivity;
+		if (tDiff > 60000L) data.clearLaunchs();
+		final Location launchLoc = data.player.getLocation().add(new Vector(0.0, data.player.getEyeHeight(), 0.0));
+		// Check active contests for removal due to shots.
+		List<String> rem = new LinkedList<String>();
+		for (final ContestData cd : data.activeContests.values()){
+			if (cd.contest.addLaunch(data, cd, launchLoc)){
+				rem.add(cd.contest.name.toLowerCase());
+			}
+		}
+		if (!rem.isEmpty()){
+			for (final String key : rem){
+				data.activeContests.remove(key);
+			}
+			if (data.mayForget()) return;
+		}
+		// Register projectile for tracking.
+		data.addLaunch(projectile.getEntityId(), launchLoc); // projectile.getLocation());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
@@ -233,33 +321,104 @@ public class Archer extends JavaPlugin implements Listener{
 		if (data == null) return;
 		final int id = projectile.getEntityId();
 		final Location launchLoc = data.removeLaunch(id);
-		if (launchLoc == null) return;
-		// TODO: later: check if contest + add miss / hit events
+		if (launchLoc != null){
+			// TODO: Hit / miss events.
+			if (!data.activeContests.isEmpty()){
+				final Entity damaged = event.getEntity();
+				if (damaged instanceof Player){
+					final PlayerData damagedData = getPlayerData((Player) damaged);
+					if (damagedData != null){
+						contestMan.onProjectileHit(data, launchLoc, projectile.getLocation(), damagedData);
+					}
+				}
+			}
+		}
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
 	public void onJoin(final PlayerJoinEvent event){
+		onReEnter(event.getPlayer());
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
+	public void onRespawn(final PlayerRespawnEvent event){
+		onReEnter(event.getPlayer());
+	}
+	
+	private void onReEnter(final Player player) {
+		if (players.isEmpty()) return;
+		final String lcName = player.getName().toLowerCase();
+		final PlayerData data = players.get(lcName);
+		if (data != null){
+			data.setPlayer(player);
+			contestMan.onPlayerJoinServer(data);
+		}
+	}
+
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
+	public void onQuit(final PlayerQuitEvent event){
+		onLeave(event.getPlayer());
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
+	public void onKick(final PlayerKickEvent event){
+		onLeave(event.getPlayer());
+	}
+	
+	/**
+	 * Quit or kick.
+	 * @param player
+	 */
+	public void onLeave(final Player player){
+		if (players.isEmpty()) return;
+		final String lcName = player.getName().toLowerCase();
+		final PlayerData data = players.get(lcName);
+		if (data != null){
+			contestMan.onPlayerLeaveServer(data);
+			data.setPlayer(null);
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerDeath(final PlayerDeathEvent event){
+		final Player player = (Player) event.getEntity();
+		final PlayerData data = getPlayerData(player);
+		if (data == null) return;
+		final Iterator<Entry<String, ContestData>> it = data.activeContests.entrySet().iterator();
+		while (it.hasNext()){
+			final Entry<String, ContestData> entry = it.next();
+			final ContestData cd = entry.getValue();
+			if (cd.contest.onPlayerDeath(data, cd)){
+				it.remove();
+				player.sendMessage("Contest ended: " + cd.contest.name);
+			}
+		}
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
+	public void onWorldChange(final PlayerChangedWorldEvent event){
 		if (players.isEmpty()) return;
 		final Player player = event.getPlayer();
 		final String lcName = player.getName().toLowerCase();
 		final PlayerData data = players.get(lcName);
 		if (data != null){
 			data.setPlayer(player);
+			contestMan.onPlayerChangedWorld(data, player.getLocation());
 		}
 	}
 	
-	public void sendAll(String msg, boolean label, Location ref, PlayerData exclude){
-		if (!label) sendNotify(msg, ref, exclude);
-		else sendNotify(msgStart + msg, ref, exclude);
+	public void sendNotifyTarget(String msg, boolean label, Location ref, PlayerData exclude){
+		if (!label) sendNotifyTarget(msg, ref, exclude);
+		else sendNotifyTarget(msgStart + msg, ref, exclude);
 	}
 	
 	/**
-	 * Send a notify message to all players who subscribed to notify events and are within range if the ref Location is given.
+	 * Send a notify message to all players who subscribed to notify target events and are within range if the ref Location is given.
 	 * @param msg
 	 * @param ref May be null.
 	 * @param exclude
 	 */
-	public void sendNotify(String msg, Location ref, PlayerData exclude){
+	public void sendNotifyTarget(String msg, Location ref, PlayerData exclude){
 		boolean distance = settings.notifyDistance > 0.0;
 		boolean restrict = ref != null && (!settings.notifyCrossWorld || distance);
 		String worldName = null;
@@ -269,9 +428,10 @@ public class Archer extends JavaPlugin implements Listener{
 		final double notifyDistance = settings.notifyDistance;
 		final long tsNow = System.currentTimeMillis();
 		for (PlayerData data : players.values()){
-			if (data == exclude) continue;
+			if (data == exclude || !data.notifyTargets) continue;
 			if (durExpireData > 0 && data.mayForget(tsNow, durExpireData)){
 				rem.add(data.playerName.toLowerCase());
+				contestMan.onPlayerDataExpire(data);
 			}
 			if (restrict){
 				if (!worldName.equals(data.player.getWorld().getName())) continue;
@@ -291,6 +451,7 @@ public class Archer extends JavaPlugin implements Listener{
 		for (PlayerData data : players.values()){
 			if (data.mayForget(tsNow, settings.durExpireData)){
 				rem.add(data.playerName.toLowerCase());
+				contestMan.onPlayerDataExpire(data);
 			}	
 		}
 		for (String name : rem){
@@ -339,6 +500,111 @@ public class Archer extends JavaPlugin implements Listener{
 
 	public ContestManager getContestManager(){
 		return contestMan;
+	}
+
+	/**
+	 * 
+	 * @param data
+	 */
+	public void removePlayerData(PlayerData data) {
+		contestMan.removePlayer(data);
+		data.clear();
+		players.remove(data.playerName.toLowerCase());
+	}
+
+	public Collection<Contest> getAvailableContests(final Player player) {
+		if (player == null){
+			return contestMan.getAllContests();
+		}else{
+			// Creates data if necessary, though it may be forgotten soon.
+			return contestMan.getAvailableContests(getPlayerData(player, true));
+		}
+	}
+	
+	public Collection<Contest> getAvailableContests(final Player player, final Location loc) {
+		if (player == null){
+			return contestMan.getAllContests();
+		}else{
+			// Creates data if necessary, though it may be forgotten soon.
+			return contestMan.getAvailableContests(getPlayerData(player, true), loc);
+		}
+	}
+
+	/**
+	 * Convenience method getting all available contests for players or all for non-players.
+	 * @param sender
+	 * @param arg uses trim
+	 * @return A new list that may be modified.
+	 */
+	public List<String> tabCompleteAvailableContests(final CommandSender sender, final String arg) {
+		boolean isPlayer = sender instanceof Player;
+		final Collection<Contest> available =  isPlayer ? getAvailableContests((Player) sender) : getAvailableContests(null);
+		return tabCompleteContests(available, arg);
+	}
+	
+	/**
+	 * 
+	 * @param player
+	 * @param arg
+	 * @return A new list.
+	 */
+	public List<String> tabCompleteActiveContests(final Player player, final String arg){
+		final PlayerData data = getPlayerData(player);
+		if (data == null || data.activeContests.isEmpty()) return new LinkedList<String>();
+		final List<Contest> contests = new LinkedList<Contest>();
+		for (final ContestData cd : data.activeContests.values()){
+			contests.add(cd.contest);
+		}
+		return tabCompleteContests(contests, arg);
+	}
+	
+	/**
+	 * Tab completions for a given collection of Contest instances.
+	 * @param available
+	 * @param arg
+	 * @return
+	 */
+	public List<String> tabCompleteContests(Collection<Contest> available, String arg){
+		arg = arg == null ? "" : arg.trim().toLowerCase();
+		final List<String> choices = new ArrayList<String>(available.size());
+		for (final Contest ref : available){
+			// Might also check for the first letters to match like with '*** xyz ***'.
+			if (ref.name.toLowerCase().startsWith(arg)){
+				choices.add(ref.name);
+			}
+		}
+		if (!choices.isEmpty()){
+			Collections.sort(choices);
+		}
+		return choices;
+	}
+
+	public boolean joinContest(final Player player, final Contest contest) {
+		return joinContest(player, player.getLocation(), contest);
+	}
+	
+	public boolean joinContest(final Player player, final Location loc, final Contest contest) {
+		final PlayerData data = getPlayerData(player, true);
+		return contestMan.joinContest(data, loc, contest);	
+	}
+
+	public Collection<Contest> getActiveContests(Player player) {
+		final PlayerData data = getPlayerData(player);
+		final List<Contest> active = new ArrayList<Contest>();
+		if (data == null) return active;
+		for (final ContestData cd : data.activeContests.values()){
+			active.add(cd.contest);
+		}
+		return active;
+	}
+
+	public void leaveContest(Player player, Contest contest) {
+		final PlayerData data = getPlayerData(player);
+		if (data == null) return;
+		ContestData cd = data.activeContests.remove(contest.name.toLowerCase());
+		if (cd == null) return;
+		contestMan.leaveContest(data, contest);
+		data.activeContests.remove(cd.contest.name.toLowerCase());
 	}
 
 }

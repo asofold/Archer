@@ -19,8 +19,10 @@ public class PlayerData {
 	
 	public long tsActivity = System.currentTimeMillis();
 	
+	public boolean notifyTargets = false;
+	
 	/** Active contests. */
-	protected final Map<String, ContestData> activeContests = new LinkedHashMap<String, ContestData>(); 
+	public final Map<String, ContestData> activeContests = new LinkedHashMap<String, ContestData>();
 	
 	/**
 	 * Entity id to launch location.
@@ -35,10 +37,18 @@ public class PlayerData {
 		this(player.getName());
 		this.player = player;
 	}
+	
+	public void clearLaunchs() {
+		launchs.clear();
+	}
 
+	/**
+	 * Just clear data, no side effects.
+	 */
 	public void clear() {
 		player = null;
-		launchs.clear();
+		clearLaunchs();
+		activeContests.clear();
 	}
 
 	public void addLaunch(Integer id, Location loc){
@@ -52,6 +62,14 @@ public class PlayerData {
 	}
 	
 	/**
+	 * Check if data can be removed independent of timing.
+	 * @return
+	 */
+	public boolean mayForget() {
+		return !notifyTargets && activeContests.isEmpty();
+	}
+	
+	/**
 	 * Use to see if data can be removed. Might perform minimum cleanup. <br>
 	 * This will respect if the player is in some contest and might be in when re-logging, later.
 	 * @param tsNow
@@ -60,6 +78,10 @@ public class PlayerData {
 	 */
 	public boolean mayForget(long tsNow, long durExpire){
 		final long diff = tsNow - tsActivity;
+		if (mayForget()){
+			clear();
+			return true;
+		}
 		if (diff > 30000){
 			// Cleanup independent of other aspects.
 			launchs.clear();

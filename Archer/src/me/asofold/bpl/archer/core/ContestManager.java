@@ -1,18 +1,20 @@
 package me.asofold.bpl.archer.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 /**
  * Central access point for all contests.<br>
@@ -27,41 +29,65 @@ public class ContestManager {
 	/** TEMP: World to contests. */
 	protected final Map<String, Set<Contest>> worldMap = new HashMap<String, Set<Contest>>();
 	
-	public Contest getContestExact(String name){
+	public Contest getContest(String name){
 		// TODO: Lower case ?
-		return contests.get(name);
+		return contests.get(name.toLowerCase());
 	}
 	
 	/**
 	 * Get available contests for the current location the player is at (convenience method).
-	 * @param player
+	 * @param data
 	 * @return
 	 */
-	public Collection<Contest> getAvailableContests(Player player){
-		return getAvailableContests(player, player.getLocation());
+	public Collection<Contest> getAvailableContests(PlayerData data){
+		return getAvailableContests(data, data.player == null ? null : data.player.getLocation());
 	}
 	
 	/**
 	 * Get all available contests for the player at the given location.<br>
 	 * TODO: Might do without the player ?
 	 * 
-	 * @param player
+	 * @param data
 	 * @param loc
 	 * @return
 	 */
-	public Collection<Contest> getAvailableContests(Player player, Location loc){
+	public Collection<Contest> getAvailableContests(final PlayerData data, final Location loc){
 		final List<Contest> found = new LinkedList<Contest>();
-		final Set<Contest> perWorld = worldMap.get(loc.getWorld().getName().toLowerCase());
-		if (perWorld != null){
-			found.addAll(perWorld);
+		if (loc == null){
+			// TODO: Error / policy ?
+			return found;
 		}
+		addAvailableContexts(data, loc, loc.getWorld().getName(), found);
+		addAvailableContexts(data, loc, "*", found);
 		return found;
 	}
 	
+	/**
+	 * Add available contexts for the given world name.
+	 * @param data
+	 * @param loc
+	 * @param worldName
+	 * @param collection
+	 * @return
+	 */
+	private <C extends Collection<Contest>> C addAvailableContexts(PlayerData data, Location loc, String worldName, C collection)
+	{
+		final Set<Contest> perWorld = worldMap.get(worldName.toLowerCase());
+		if (perWorld != null){
+			for (final Contest contest : perWorld){
+				if (contest.isAvailable(data, loc)){
+					collection.add(contest);
+				}
+			}
+		}
+		return collection;
+	}
+
 	public void fromConfig(CompatConfig cfg, String prefix){
+		// The keys are ignored, due to special characters.
 		for (String key : cfg.getStringKeys(prefix)){
 			Contest contest = new Contest(null, null);
-			contest.fromConfig(cfg, prefix + key);
+			contest.fromConfig(cfg, prefix + key + ".");
 			if (contest.name != null){
 				addContest(contest);
 			}
@@ -81,6 +107,134 @@ public class ContestManager {
 		}
 		wContests.remove(contest); // To remove old one with the same name.
 		wContests.add(contest);
+	}
+	
+	public void onPlayerChangedWorld(final PlayerData data, final Location to){
+		if (data.activeContests.isEmpty()) return;
+		final Iterator<Entry<String, ContestData>> it = data.activeContests.entrySet().iterator();
+		while (it.hasNext()){
+			final Entry<String, ContestData> entry = it.next();
+			if (entry.getValue().contest.onPlayerChangedWorld(data, to)){
+				it.remove();
+			}
+		}
+	}
+	
+	public void onPlayerLeaveServer(final PlayerData data){
+		if (data.activeContests.isEmpty()) return;
+		final Iterator<Entry<String, ContestData>> it = data.activeContests.entrySet().iterator();
+		while (it.hasNext()){
+			final Entry<String, ContestData> entry = it.next();
+			if (entry.getValue().contest.onPlayerLeaveServer(data)){
+				it.remove();
+			}
+		}
+	}
+	
+	public void onPlayerJoinServer(final PlayerData data){
+		if (data.activeContests.isEmpty()) return;
+		final Iterator<Entry<String, ContestData>> it = data.activeContests.entrySet().iterator();
+		while (it.hasNext()){
+			final Entry<String, ContestData> entry = it.next();
+			final ContestData cd = entry.getValue();
+			if (cd.contest.onPlayerJoinServer(data)){
+				it.remove();
+				data.player.sendMessage("Contest ended: " + cd.contest.name);
+			}
+		}
+	}
+	
+	public void onPlayerDataExpire(final PlayerData data){
+		if (data.activeContests.isEmpty()) return;
+		for (final ContestData cd : data.activeContests.values()){
+			cd.contest.onPlayerDataExpire(data);
+		}
+	}
+
+	/**
+	 * Just remove data and contests, calls Contest.clear, no other side effects like unregistering ContestData.
+	 */
+	public void clear() {
+		for (final Contest contest : contests.values()){
+			contest.clear();
+		}
+		contests.clear();
+		worldMap.clear();
+	}
+	
+	/**
+	 * Re-checks availability. This adds a new ContestData to the player data becasue the contest-specific settings [might change and add a factory method to the contest].
+	 * @param data
+	 * @param contest
+	 * @return
+	 */
+	public boolean joinContest(final PlayerData data, final Location loc, final Contest contest){
+		// Use the stored one to be sure.
+		final Contest ref = getContest(contest.name);
+		if (ref == null || loc == null || !ref.isAvailable(data, loc)) return false;
+		else{
+			ref.addPlayer(data);
+			return true;
+		}
+	}
+	
+	/**
+	 * Removes the player. Does not alter the given PlayerData instance.
+	 * @param data
+	 * @param contest
+	 * @return If previously contained.
+	 */
+	public boolean leaveContest(final PlayerData data, final Contest contest){
+		return contest.removePlayer(data);
+	}
+
+	/**
+	 *  Remove the player (usually called after checking). Accesses activeContests but does not change given PlayerData.
+	 * @param data
+	 */
+	public void removePlayer(final PlayerData data) {
+		for (final ContestData cd : data.activeContests.values()){
+			cd.contest.removePlayer(data);
+		}
+	}
+
+	public Collection<Contest> getAllContests() {
+		return contests.values();
+	}
+
+	public void checkState(boolean notifyTime) {
+		for (final Contest contest : contests.values()){
+			contest.checkState();
+			if (notifyTime){
+				if (!contest.started && contest.startDelay.value > 0.0 && contest.lastTimeValid > 0){
+					final long time = System.currentTimeMillis();
+					final long timeDiff = time - contest.lastTimeValid;
+					if (timeDiff > 0 && timeDiff < contest.startDelay.value){
+						contest.notifyActive("Contest " + contest.name + " starting in " + ((int) (contest.startDelay.value - timeDiff) / 1000) + " seconds...");
+					}
+				}
+			}
+		}
+	}
+
+	public void onProjectileHit(final PlayerData data, final Location launchLoc, final Location hitLoc, final PlayerData damagedData)
+	{
+		if (!launchLoc.getWorld().equals(hitLoc.getWorld())){
+			return;
+		}
+		if (data.activeContests.isEmpty() || damagedData.activeContests.isEmpty()){
+			return;
+		}
+		final double distance = launchLoc.distance(hitLoc);
+		for (final ContestData cd : new ArrayList<ContestData>(data.activeContests.values())){
+			// TODO: Might remove if shots used up... 
+			final String key = cd.contest.name.toLowerCase();
+			if (!damagedData.activeContests.containsKey(key)) continue;
+			if (cd.contest.onHit(data, cd, distance, damagedData, damagedData.activeContests.get(key))){
+				data.activeContests.remove(key);
+				data.player.sendMessage("Contest ended: " + cd.contest.name);
+			}
+		}
 	}
 	
 }

@@ -7,6 +7,7 @@ Add features for target practice with arrows on signs!
 Features
 -----------------------------------------------------------------
 
+Target signs:
 - Set up a sign with certain configurable content, 
     which then serves as target practice for archers.
     Default lines (no spaces, small letters):
@@ -25,6 +26,7 @@ Features
     maximum distance off target, maximum notification distance,
     cross world notification... 
 
+TODO: ADDED: Contests.
 
 Commands and Permissions
 -----------------------------------------------------------------
@@ -34,8 +36,14 @@ Commands and Permissions
     To reload the settings.
 - /archer notify
     archer.notify
-    Toggle if to take part in the notifications about hitting signs.
+    Toggle if to take part in the notifications about hitting target signs.
 
+TODO: ADDED: /archer contest (archer.cmd.contest.join|leave)
+
+Shortcut permissions:
+
+- archer.normaluser
+    Allows to use /notify and contest+join|leave. No creation or editing of contests.
 
 Configuration
 -----------------------------------------------------------------
@@ -74,6 +82,7 @@ Configuration
     the console.
 - permissions.use: If to use superperms - if set to false,
     players can use the normal functions without permission checks.
+    TODO: REMOVED: permissions.use
 - players.expire-offline: Duration in minutes after which offline 
     player data / notification state expire.
     Set to 0 to never expire data (until restart/reload).
@@ -146,8 +155,13 @@ STACK
 * Consistency
 - Add a timeout for stored arrows and check them now and then (chunk unloading, etc.). Needs storing the time.
 - Set player to null on logout/kick ?
+- Make use of getLocation(Location) to better keep track of changed locations (later mainly, but also on join !).
 
 * Contests
+
+restrict to arrows only ? [configurable: entity types]
+
+implement timestamp checking to prevent spamming join+leave
 
 ! add flag + permission and/or property for persisting a newly created contest.
 
@@ -163,8 +177,31 @@ STACK
 - Possible ends: player death, health depleted, hits_taken max reached, hits reached, score reached, world change, player leaves, ...
 - Rewards (...)
 
+
+***
+
+summaries...
+
+move iterations over cd to contestmanager (iterator...)
+
+max dur for a contest.
+
+allow remove players while not started on world disconnect (!).
+
+
+
+start contest + notify 
+
 ... command to automatically set lines for a placed sign.
 ... contest logic + notifications [change notify to also display if contests are available]
 ... contest join + leave commands
 
-... read  contests from contests.yml
+might have to remember force too for projectile launch
+
+check if contest is active at all.
+
+*** TEST
+
+max shots
+
+Settings: loss hits, loss score <- minimum balance 

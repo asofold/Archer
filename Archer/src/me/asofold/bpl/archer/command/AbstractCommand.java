@@ -1,7 +1,9 @@
 package me.asofold.bpl.archer.command;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +18,8 @@ import org.bukkit.command.TabExecutor;
  *
  */
 public abstract class AbstractCommand<A> implements TabExecutor{
+	
+	public static final List<String> noTabChoices = Collections.unmodifiableList(new LinkedList<String>());
 
 	protected final A access;
 	public final String label;
@@ -23,8 +27,8 @@ public abstract class AbstractCommand<A> implements TabExecutor{
 	public final String permission;
 	/** Sub commands for delegation. */
 	protected final Map<String, AbstractCommand<?>> subCommands = new LinkedHashMap<String, AbstractCommand<?>>();
-	/** The index in args to check for sub-commands. */
-	protected int subCommandIndex = 0;
+	/** The index in args to check for sub-commands. -1 stands for default, either parent + 1 or 0 */
+	protected int subCommandIndex = -1;
 
 	public AbstractCommand(A access, String label, String permission){
 		this.access = access;
@@ -35,6 +39,9 @@ public abstract class AbstractCommand<A> implements TabExecutor{
 	public void addSubCommands(AbstractCommand<?>... commands){
 		for (AbstractCommand<?> subCommand : commands ){
 			subCommands.put(subCommand.label, subCommand);
+			if (subCommand.subCommandIndex == -1){
+				subCommand.subCommandIndex = Math.max(0, this.subCommandIndex) + 1;
+			}
 		}
 	}
 	
@@ -44,6 +51,7 @@ public abstract class AbstractCommand<A> implements TabExecutor{
 		final List<String> choices = new ArrayList<String>(subCommands.size());
 		int len = args.length;
 		// Attempt to delegate.
+		int subCommandIndex = Math.max(0, this.subCommandIndex);
 		if (len == subCommandIndex || len == subCommandIndex + 1){
 			String arg = len == subCommandIndex ? "" : args[subCommandIndex].trim().toLowerCase();
 			for (AbstractCommand<?> cmd : subCommands.values()){
@@ -67,6 +75,7 @@ public abstract class AbstractCommand<A> implements TabExecutor{
 	public boolean onCommand(CommandSender sender, Command command, String alias, String[] args)
 	{
 		int len = args.length;
+		int subCommandIndex = Math.max(0, this.subCommandIndex);
 		if (len > subCommandIndex){
 			String arg = args[subCommandIndex].trim().toLowerCase();
 			AbstractCommand<?> subCommand = subCommands.get(arg);

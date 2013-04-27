@@ -20,6 +20,18 @@ permissions:
     children:
       archer.access.command.archer: true
   
+  archer.command.contest.join:
+    description: Allow to join a contest with a command.
+    default: op
+    children:
+      archer.access.command.contest: true
+  
+  archer.command.contest.leave:
+    description: Allow to leave a contest with a command.
+    default: op
+    children:
+      archer.access.command.contest: true
+  
   archer.notify:
     description: Toggle notifications about hitting targets (and possibly other).
     default: op
@@ -37,4 +49,6 @@ permissions:
     default: true
     children:
       archer.notify: true
- 
+      archer.command.contest.join: true
+      archer.command.contest.leave: true
+
