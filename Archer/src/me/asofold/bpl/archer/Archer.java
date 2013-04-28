@@ -39,6 +39,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
@@ -186,7 +187,7 @@ public class Archer extends JavaPlugin implements Listener{
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = true)
 	final void onHit(final ProjectileHitEvent event){
-		if (players.isEmpty()) return;
+		if (players.isEmpty() || event.getClass() != ProjectileHitEvent.class) return;
 		final Projectile projectile = event.getEntity();
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null || !data.notifyTargets) return;
@@ -334,9 +335,11 @@ public class Archer extends JavaPlugin implements Listener{
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
-	final void onDamage(final EntityDamageByEntityEvent event){
+	final void onDamage(final EntityDamageEvent preEvent){
 		// also check cancelled events.
-		if (players.isEmpty()) return;
+		if (players.isEmpty() || preEvent.getClass() != EntityDamageByEntityEvent.class) return;
+		if (!(preEvent instanceof EntityDamageByEntityEvent)) return;
+		final EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) preEvent;
 		final Entity entity = event.getDamager();
 		if (!(entity instanceof Projectile)) return;
 		final Projectile projectile = (Projectile) entity;
