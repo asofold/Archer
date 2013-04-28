@@ -14,6 +14,7 @@ import java.util.Set;
 
 import me.asofold.bpl.archer.Archer;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
+import me.asofold.bpl.archer.core.contest.HitResult;
 import me.asofold.bpl.archer.utils.Utils;
 
 import org.bukkit.ChatColor;
@@ -213,7 +214,7 @@ public class ContestManager {
 					final long time = System.currentTimeMillis();
 					final long timeDiff = time - contest.lastTimeValid;
 					if (timeDiff > 0 && timeDiff < contest.startDelay.value){
-						contest.notifyActive("Contest " + contest.name + " starting in " + ((int) (contest.startDelay.value - timeDiff) / 1000) + " seconds...");
+						contest.notifyActive(Archer.msgStart + ChatColor.YELLOW + "Contest " + ChatColor.RED + contest.name + ChatColor.YELLOW + " starting in " + ((int) (contest.startDelay.value - timeDiff) / 1000) + " seconds...");
 					}
 				}
 			}
@@ -228,16 +229,21 @@ public class ContestManager {
 		if (data.activeContests.isEmpty() || damagedData.activeContests.isEmpty()){
 			return;
 		}
-		// TODO: Make methods in Archer ?
-		Utils.sendMessage(data, Archer.msgStart + "Hit: " + ChatColor.GREEN + damagedData.playerName);
-		Utils.sendMessage(damagedData, Archer.msgStart + "Hit by: " + ChatColor.RED + damagedData.playerName);
 		final double distance = launchLoc.distance(hitLoc);
+		HitResult result = HitResult.NOT_HIT_FINISHED; // Only to see if there was any hit (!).
 		for (final ContestData cd : new ArrayList<ContestData>(data.activeContests.values())){
 			// (Use copy because of endContest calls.)
 			// TODO: Might remove if shots used up... 
 			final String key = cd.contest.name.toLowerCase();
 			if (!damagedData.activeContests.containsKey(key)) continue;
-			if (cd.contest.onHit(data, cd, distance, damagedData, damagedData.activeContests.get(key))){
+			final HitResult thisResult = cd.contest.onHit(data, cd, distance, damagedData, damagedData.activeContests.get(key));
+			if (thisResult.hit && !result.hit){
+				// TODO: Make methods in Archer ?
+				Utils.sendMessage(data, Archer.msgStart + "Hit: " + ChatColor.GREEN + damagedData.playerName);
+				Utils.sendMessage(damagedData, Archer.msgStart + "Hit by: " + ChatColor.RED + data.playerName);
+			}
+			result = result.max(thisResult);
+			if (thisResult.finished){
 				data.activeContests.remove(key);
 				Archer.send(data.player, ChatColor.YELLOW + "Contest ended: " + cd.contest.name);
 			}

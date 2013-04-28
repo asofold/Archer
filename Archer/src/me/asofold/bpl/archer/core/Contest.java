@@ -9,6 +9,7 @@ import me.asofold.bpl.archer.Archer;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
 import me.asofold.bpl.archer.config.properties.ConfigPropertyHolder;
 import me.asofold.bpl.archer.config.properties.Property;
+import me.asofold.bpl.archer.core.contest.HitResult;
 import me.asofold.bpl.archer.utils.Utils;
 
 import org.bukkit.Bukkit;
@@ -217,7 +218,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		}
 		started = true;
 		Bukkit.getServer().broadcastMessage("Contest " + name + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ", "));
-		notifyActive(Archer.msgStart + "Contest started: " + name);
+		notifyActive(Archer.msgStart + ChatColor.YELLOW + "Contest started: " + ChatColor.GREEN + name);
 		return true;
 	}
 
@@ -364,12 +365,21 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		return false;
 	}
 
-	public boolean onHit(PlayerData data, ContestData cd, double distance, PlayerData damagedData, ContestData damagedCd)
+	/**
+	 * 
+	 * @param data
+	 * @param cd
+	 * @param distance
+	 * @param damagedData
+	 * @param damagedCd
+	 * @return
+	 */
+	public HitResult onHit(PlayerData data, ContestData cd, double distance, PlayerData damagedData, ContestData damagedCd)
 	{
-		if (!started) return false;
+		if (!started) return HitResult.NOT_HIT;
 		if (minDistance.nonzero() && distance < minDistance.value){
 			// TODO: Might check loss by number of shots.
-			return false;
+			return HitResult.NOT_HIT;
 		}
 		// TODO: Message ...
 		double score = distance;
@@ -421,7 +431,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		else{
 			loss = false;
 		}
-		return loss || !started;
+		return loss || !started ? HitResult.HIT_FINISHED : HitResult.HIT;
 	}
 	
 	
