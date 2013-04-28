@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import me.asofold.bpl.archer.Archer;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -81,7 +83,7 @@ public abstract class AbstractCommand<A> implements TabExecutor{
 			AbstractCommand<?> subCommand = subCommands.get(arg);
 			if (subCommand != null){
 				if (subCommand.permission != null && !sender.hasPermission(subCommand.permission)){
-					sender.sendMessage(ChatColor.DARK_RED + "You don't have permission.");
+					Archer.send(sender, ChatColor.DARK_RED + "You don't have permission.");
 					return true;
 				}
 				return subCommand.onCommand(sender, command, alias, args);

@@ -202,8 +202,4 @@ might have to remember force too for projectile launch
 
 check if contest is active at all.
 
-*** TEST
-
-max shots
-
-Settings: loss hits, loss score <- minimum balance 
+print sign lines on /archer ?

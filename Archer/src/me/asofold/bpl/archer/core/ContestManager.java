@@ -142,7 +142,7 @@ public class ContestManager {
 			final ContestData cd = entry.getValue();
 			if (cd.contest.onPlayerJoinServer(data)){
 				it.remove();
-				data.player.sendMessage("Contest ended: " + cd.contest.name);
+				Archer.send(data.player, ChatColor.YELLOW + "Contest ended: " + cd.contest.name);
 			}
 		}
 	}
@@ -228,6 +228,7 @@ public class ContestManager {
 		if (data.activeContests.isEmpty() || damagedData.activeContests.isEmpty()){
 			return;
 		}
+		// TODO: Make methods in Archer ?
 		Utils.sendMessage(data, Archer.msgStart + "Hit: " + ChatColor.GREEN + damagedData.playerName);
 		Utils.sendMessage(damagedData, Archer.msgStart + "Hit by: " + ChatColor.RED + damagedData.playerName);
 		final double distance = launchLoc.distance(hitLoc);
@@ -238,7 +239,7 @@ public class ContestManager {
 			if (!damagedData.activeContests.containsKey(key)) continue;
 			if (cd.contest.onHit(data, cd, distance, damagedData, damagedData.activeContests.get(key))){
 				data.activeContests.remove(key);
-				data.player.sendMessage("Contest ended: " + cd.contest.name);
+				Archer.send(data.player, ChatColor.YELLOW + "Contest ended: " + cd.contest.name);
 			}
 		}
 	}

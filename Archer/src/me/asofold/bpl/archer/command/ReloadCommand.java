@@ -19,7 +19,7 @@ public class ReloadCommand extends AbstractCommand<Archer> {
 			return false;
 		}
 		access.reloadSettingsAndData();
-		sender.sendMessage("[Archer] Settings reloaded.");
+		Archer.send(sender, "Settings reloaded.");
 		return true;
 	}
 	

@@ -53,12 +53,35 @@ import org.bukkit.util.Vector;
 
 public class Archer extends JavaPlugin implements Listener{
 
+	public static final String msgStart = ChatColor.DARK_GRAY + "[Archer] " + ChatColor.GRAY;
+	
+	/**
+	 * Send with tag added.
+	 * @param sender
+	 * @param message
+	 */
+	public static void send(final CommandSender sender, final String message){
+		if (sender instanceof Player){
+			sender.sendMessage(msgStart + message); 
+		}
+		else{
+			// Might further strip color.
+			sender.sendMessage("[Archer] " + message);
+		}
+	}
+	
+	public static void send(final CommandSender sender, final String[] msgs) {
+		final String tag = (sender instanceof Player) ? msgStart : "[Archer] ";
+		final String[] newMsg = new String[msgs.length];
+		for (int i = 0; i < msgs.length; i++){
+			newMsg[i] = tag + msgs[i];
+		}
+		sender.sendMessage(newMsg);
+	}
 	
 	private final Map<String, PlayerData> players = new LinkedHashMap<String, PlayerData>(20);
 	
 	private final ContestManager contestMan = new ContestManager();
-
-	public static final String msgStart = ChatColor.DARK_GRAY + "[Archer] " + ChatColor.GRAY;
 	
 	private final Settings settings = new Settings();
 
@@ -107,7 +130,7 @@ public class Archer extends JavaPlugin implements Listener{
 	public void removeAllData() {
 		for (final PlayerData data : players.values()){
 			if (data.player != null && data.player.isOnline()){
-				data.player.sendMessage(msgStart + ChatColor.YELLOW + "Configuration was reloaded, need to re-register.");
+				send(data.player, ChatColor.YELLOW + "Configuration was reloaded, need to re-register.");
 			}
 			data.clear();
 		}
@@ -390,7 +413,7 @@ public class Archer extends JavaPlugin implements Listener{
 			final ContestData cd = entry.getValue();
 			if (cd.contest.onPlayerDeath(data, cd)){
 				it.remove();
-				player.sendMessage("Contest ended: " + cd.contest.name);
+				send(player, ChatColor.YELLOW + "Contest ended: " + cd.contest.name);
 			}
 		}
 	}

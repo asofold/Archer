@@ -30,11 +30,11 @@ public class NotifyCommand extends AbstractCommand<Archer> {
 		if (data.notifyTargets){
 			data.notifyTargets = false;
 			data.clearLaunchs();
-			player.sendMessage(Archer.msgStart + "You " + ChatColor.RED + "unsubscribed" + ChatColor.GRAY + " from archer target events.");
+			Archer.send(sender, "You " + ChatColor.RED + "unsubscribed" + ChatColor.GRAY + " from archer target events.");
 		}
 		else {
 			data.notifyTargets = true;
-			player.sendMessage(Archer.msgStart + "You " + ChatColor.GREEN + "subscribed" + ChatColor.GRAY + " to archer target events.");
+			Archer.send(sender, "You " + ChatColor.GREEN + "subscribed" + ChatColor.GRAY + " to archer target events.");
 		}
 		if (data.mayForget()){
 			access.removePlayerData(data);

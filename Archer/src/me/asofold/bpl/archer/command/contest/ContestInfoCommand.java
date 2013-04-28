@@ -56,7 +56,7 @@ public class ContestInfoCommand extends AbstractCommand<Archer> {
 	private void sendInfo(CommandSender sender, String contestName) {
 		Contest contest = access.getContestManager().getContest(contestName);
 		if (contest == null){
-			sender.sendMessage("No contest: " + contestName);
+			Archer.send(sender, "No contest: " + contestName);
 		} else {
 			// TODO: Send contest details info ...
 			String[] msgs = new String[]{
@@ -64,8 +64,7 @@ public class ContestInfoCommand extends AbstractCommand<Archer> {
 				"Players: " + Utils.joinObjects(contest.getOnlineNameList(), ", "),
 				"Starting: " + (contest.started ? "Already started." : (contest.startDelay.nonzero() && contest.lastTimeValid > 0 ? "soon" : "unknown")),
 			};
-			sender.sendMessage(msgs);
-			
+			Archer.send(sender, msgs);
 		}
 	}
 
@@ -74,10 +73,10 @@ public class ContestInfoCommand extends AbstractCommand<Archer> {
 		if (sender instanceof Player){
 			Collection<Contest> active = access.getActiveContests((Player) sender);
 			if (active.isEmpty()){
-				sender.sendMessage("(No active contests.)");
+				Archer.send(sender, "(No active contests.)");
 			}
 			else{
-				sender.sendMessage("Active contests: " + Utils.joinObjects(active, " | "));
+				Archer.send(sender, "Active contests: " + Utils.joinObjects(active, " | "));
 			}
 			available = access.getAvailableContests((Player) sender);
 		}
@@ -85,10 +84,10 @@ public class ContestInfoCommand extends AbstractCommand<Archer> {
 			available = access.getAvailableContests(null);
 		}
 		if (available.isEmpty()){
-			sender.sendMessage("(No more contests available.)");
+			Archer.send(sender, "(No more contests available.)");
 		}
 		else{
-			sender.sendMessage("Available contests: " + Utils.joinObjects(available, " | "));
+			Archer.send(sender, "Available contests: " + Utils.joinObjects(available, " | "));
 		}
 	}
 

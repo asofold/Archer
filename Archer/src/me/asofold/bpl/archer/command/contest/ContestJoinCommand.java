@@ -45,7 +45,7 @@ public class ContestJoinCommand extends AbstractCommand<Archer> {
 		final Location loc = player.getLocation();
 		final Collection<Contest> available = access.getAvailableContests(player, loc);
 		if (available.isEmpty()){
-			sender.sendMessage("No more contests available.");
+			Archer.send(sender, "No more contests available.");
 			return true;
 		}
 		if (arg.equals("*")){
@@ -56,27 +56,27 @@ public class ContestJoinCommand extends AbstractCommand<Archer> {
 					done.add(contest.name);
 				}
 				else{
-					player.sendMessage("Failed to join contest: " + contest.name);
+					Archer.send(sender, "Failed to join contest: " + contest.name);
 				}
 			}
 			if (done.isEmpty()){
-				player.sendMessage("Could not join any contests.");
+				Archer.send(sender, "Could not join any contests.");
 			}
 			else{
-				player.sendMessage("Contests joined: " + Utils.joinObjects(done, " | "));
+				Archer.send(sender, "Contests joined: " + Utils.joinObjects(done, " | "));
 			}
 		}
 		else{
 			Contest contest = access.getContestManager().getContest(arg);
 			if (contest == null){
-				player.sendMessage("No contest: " + arg);
+				Archer.send(sender, "No contest: " + arg);
 			}
 			else{
 				if (access.joinContest(player, loc, contest)){
-					player.sendMessage("Joined contest: " + contest.name);
+					Archer.send(sender, "Joined contest: " + contest.name);
 				}
 				else{
-					player.sendMessage("Failed to join contest: " + contest.name);
+					Archer.send(sender, "Failed to join contest: " + contest.name);
 				}
 			}
 		}

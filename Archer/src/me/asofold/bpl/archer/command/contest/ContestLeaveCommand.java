@@ -41,7 +41,7 @@ public class ContestLeaveCommand extends AbstractCommand<Archer> {
 		String arg = args[2].trim().toLowerCase();
 		final Collection<Contest> active = access.getActiveContests((Player) sender);
 		if (active.isEmpty()){
-			sender.sendMessage("No active contests.");
+			Archer.send(sender, "No active contests.");
 		}
 		final Player player = (Player) sender;
 		if (arg.equals("*")){
@@ -49,20 +49,20 @@ public class ContestLeaveCommand extends AbstractCommand<Archer> {
 			for (Contest contest : active){
 				access.leaveContest(player, contest);
 			}
-			player.sendMessage("Left all contests.");
+			Archer.send(sender, "Left all contests.");
 		}
 		else{
 			// TODO: Access method, something better?
 			for (Contest contest : active){
 				if (contest.name.equalsIgnoreCase(arg)){
 					access.leaveContest(player, contest);
-					player.sendMessage("Left contest: " + contest.name);
+					Archer.send(sender, "Left contest: " + contest.name);
 					return true;
 				}
 			}
 			Contest contest = access.getContestManager().getContest(arg);
-			if (contest == null) player.sendMessage("No contest: " + arg);
-			else player.sendMessage("Not in contest: " + contest.name);
+			if (contest == null) Archer.send(sender, "No contest: " + arg);
+			else Archer.send(sender, "Not in contest: " + contest.name);
 		}
 		return true;
 	}

@@ -12,6 +12,7 @@ import me.asofold.bpl.archer.config.properties.Property;
 import me.asofold.bpl.archer.utils.Utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 public class Contest extends ConfigPropertyHolder implements Comparable<Contest>{
@@ -216,7 +217,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		}
 		started = true;
 		Bukkit.getServer().broadcastMessage("Contest " + name + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ", "));
-		notifyActive("Contest started: " + name);
+		notifyActive(Archer.msgStart + "Contest started: " + name);
 		return true;
 	}
 
@@ -268,7 +269,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 				}
 			}
 		}
-		message = "Contest " + name + " ended" + (message == null ? "." : "! " + message);
+		message = Archer.msgStart + ChatColor.YELLOW + "Contest " + name + " ended" + (message == null ? "." : "! " + message);
 		if (broadCast){
 			Bukkit.getServer().broadcastMessage(message);
 		}
@@ -343,7 +344,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		}
 		if (remove){
 			removePlayer(data);
-			if (data.player != null) data.player.sendMessage("Contest finished: " + name);
+			if (data.player != null) Archer.send(data.player, ChatColor.YELLOW + "Contest finished: " + name);
 		}
 		return remove;
 	}
@@ -405,7 +406,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		if (started && kill){
 			// Remove hit player.
 			if (damagedData.player != null && damagedData.player.isOnline()){
-				damagedData.player.sendMessage("Shot by " + data.playerName + ", ends contest: " + name);
+				Archer.send(damagedData.player, "Shot by " + data.playerName + ", ends contest: " + name);
 			}
 			removePlayer(damagedData);
 			damagedData.activeContests.remove(name.toLowerCase());
