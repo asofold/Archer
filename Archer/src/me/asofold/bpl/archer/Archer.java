@@ -307,6 +307,7 @@ public class Archer extends JavaPlugin implements Listener{
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = true)
 	final void onLaunch(final ProjectileLaunchEvent event){
 		if (players.isEmpty()) return;
+		// TODO: Might check event class here too.
 		final Projectile projectile = event.getEntity();
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null || data.mayForget()){
