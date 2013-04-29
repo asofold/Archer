@@ -273,7 +273,8 @@ public class ContestManager {
 		contest.endContest("Contest deleted.");
 		final String lcName = contest.name.toLowerCase();
 		contests.remove(lcName);
-		worldMap.get(contest.world).remove(lcName);
+		final Set<Contest> perWorld = worldMap.get(contest.world.toLowerCase());
+		if (perWorld != null) perWorld.remove(contest);
 	}
 	
 	/**
