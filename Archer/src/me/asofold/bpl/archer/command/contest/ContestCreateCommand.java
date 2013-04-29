@@ -22,7 +22,7 @@ public class ContestCreateCommand extends AbstractCommand<Archer> {
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args)
 	{
 		if (args.length == 3){
-			return TabUtil.tabCompleteRandomNewContests(access, sender, args.length == 3 ? args[2].trim().toLowerCase() : "");
+			return TabUtil.tabCompleteRandomNewContests(access, sender, args.length == 3 ? args[2] : "");
 		}
 		else{
 			return noTabChoices;

@@ -101,8 +101,8 @@ public class TabUtil {
 		final long time = System.currentTimeMillis();
 		for (int i = 1; i <= 12; i++){
 			int x = (int)(time % Math.pow(10, i));
-			if (cMan.getContest(arg + "_" + x) != null){
-				return Arrays.asList(arg);
+			if (cMan.getContest(arg + "_" + x) == null){
+				return Arrays.asList(arg + "_" + x);
 			}
 		}
 		return AbstractCommand.noTabChoices;
