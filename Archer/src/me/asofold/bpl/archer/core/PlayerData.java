@@ -1,10 +1,9 @@
 package me.asofold.bpl.archer.core;
 
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 /**
@@ -27,7 +26,7 @@ public class PlayerData {
 	/**
 	 * Entity id to launch location.
 	 */
-	private final Map<Integer, Location> launchs = new HashMap<Integer, Location>(10);
+	private final Map<Integer, LaunchSpec> launchs = new LinkedHashMap<Integer, LaunchSpec>(10);
 	
 	public PlayerData(String playerName){
 		this.playerName = playerName;
@@ -51,14 +50,51 @@ public class PlayerData {
 		activeContests.clear();
 	}
 
-	public void addLaunch(Integer id, Location loc){
-		launchs.put(id, loc);
-		tsActivity = System.currentTimeMillis();
+	/**
+	 * Sets tsActivity to launchSpec.time (!).
+	 * @param id
+	 * @param launchSpec
+	 */
+	public void addLaunch(Integer id, LaunchSpec launchSpec){
+		launchs.put(id, launchSpec);
+		tsActivity = launchSpec.time;
 	}
 	
-	public Location removeLaunch(Integer id){
+	/**
+	 * Really Remove launch, sets tsActivity.
+	 * @param id
+	 * @return
+	 */
+	public LaunchSpec removeLaunch(Integer id){
 		tsActivity = System.currentTimeMillis();
 		return launchs.remove(id);
+	}
+	
+	/**
+	 * Gets the LaunchSpec, sets its consumed flag, sets tsActivity.
+	 * @param id
+	 * @return
+	 */
+	public LaunchSpec consumeLaunchSpec(Integer id){
+		tsActivity = System.currentTimeMillis();
+		final LaunchSpec spec = launchs.get(id);
+		if (spec != null) spec.consumed = true;
+		return spec;
+	}
+	
+	/**
+	 * Remove consumed and too old ones (inconsistent time too).
+	 * @param time
+	 * @param durExpire
+	 */
+	public void cleanLaunchs(final long time, final long durExpire){
+		if (launchs.isEmpty()) return;
+		final Iterator<LaunchSpec> it = launchs.values().iterator();
+		final long tsExpire = time - durExpire;
+		while (it.hasNext()){
+			final LaunchSpec spec = it.next();
+			if (spec.consumed || spec.time > time || spec.time < tsExpire) it.remove();
+		}
 	}
 	
 	/**

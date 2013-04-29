@@ -230,15 +230,15 @@ public class ContestManager {
 		}
 	}
 
-	public void onProjectileHit(final PlayerData data, final Location launchLoc, final Location hitLoc, final PlayerData damagedData)
+	public void onProjectileHit(final PlayerData data, final LaunchSpec launchSpec, final Location hitLoc, final PlayerData damagedData)
 	{
-		if (!launchLoc.getWorld().equals(hitLoc.getWorld())){
+		if (!launchSpec.world.equals(hitLoc.getWorld().getName())){
 			return;
 		}
 		if (data.activeContests.isEmpty() || damagedData.activeContests.isEmpty()){
 			return;
 		}
-		final double distance = launchLoc.distance(hitLoc);
+		final double distance = launchSpec.distance(hitLoc);
 		HitResult result = HitResult.NOT_HIT_FINISHED; // Only to see if there was any hit (!).
 		for (final ContestData cd : new ArrayList<ContestData>(data.activeContests.values())){
 			// (Use copy because of endContest calls.)

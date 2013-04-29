@@ -347,16 +347,16 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 	 * @param launchLoc
 	 * @return If the player was removed from the contest.
 	 */
-	public boolean addLaunch(final PlayerData data, final ContestData cd, final Location launchLoc) {
+	public boolean addLaunch(final PlayerData data, final ContestData cd, final LaunchSpec launchSpec) {
 		if (!started) return false;
 		cd.shotsFired ++;
 		if (maxShots.value > 0.0){
 			cd.shotsLeft --;
 		}
-		return removeIfInvalid(data, cd, launchLoc);
+		return removeIfInvalid(data, cd, launchSpec);
 	}
 
-	public boolean removeIfInvalid(PlayerData data, ContestData cd, Location loc)
+	public boolean removeIfInvalid(final PlayerData data, final ContestData cd, final LaunchSpec launchSpec)
 	{
 		boolean remove = false;
 		if (maxShots.value > 0.0){

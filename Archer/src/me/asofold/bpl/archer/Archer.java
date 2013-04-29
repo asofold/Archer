@@ -20,6 +20,7 @@ import me.asofold.bpl.archer.config.compatlayer.ConfigUtil;
 import me.asofold.bpl.archer.core.Contest;
 import me.asofold.bpl.archer.core.ContestData;
 import me.asofold.bpl.archer.core.ContestManager;
+import me.asofold.bpl.archer.core.LaunchSpec;
 import me.asofold.bpl.archer.core.PlayerData;
 import me.asofold.bpl.archer.core.TargetSignSpecs;
 import me.asofold.bpl.archer.utils.TargetUtil;
@@ -179,6 +180,10 @@ public class Archer extends JavaPlugin implements Listener{
 			@Override
 			public void run() {
 				contestMan.checkState(true);
+				final long time = System.currentTimeMillis();
+				for (final PlayerData data : players.values()){
+					data.cleanLaunchs(time, 60000L);
+				}
 			}
 		}, 200, 200);
 		// Done.
@@ -192,8 +197,8 @@ public class Archer extends JavaPlugin implements Listener{
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null) return;
 		final int entityId = projectile.getEntityId();
-		final Location launchLoc = data.removeLaunch(entityId);
-		if (launchLoc == null) return;
+		final LaunchSpec launchSpec = data.consumeLaunchSpec(entityId);
+		if (launchSpec == null) return;
 		
 		// TODO: later: add miss / hit events
 		// TODO: Might remove if shots used up...
@@ -284,7 +289,7 @@ public class Archer extends JavaPlugin implements Listener{
 		if (distOff > settings.signHitDist) return;
 		// Hit !
 		final Location targetLocation = new Location(hitLoc.getWorld(), mx,my,mz);
-		final double shootDist = launchLoc.toVector().distance(new Vector(mx,my,mz));
+		final double shootDist = launchSpec.distance(mx, my, mz);
 		if (settings.shootDistMin > 0.0 && shootDist < settings.shootDistMin) return;
 		if (settings.shootDistMax > 0.0 && shootDist > settings.shootDistMax) return;
 		final int off = (int) Math.round((1000.0 - 1000.0 * (settings.signHitDist - distOff) / settings.signHitDist) / settings.offDivisor);
@@ -317,13 +322,14 @@ public class Archer extends JavaPlugin implements Listener{
 			return;
 		}
 		// Cleanup.
-		final long tDiff = System.currentTimeMillis() - data.tsActivity;
+		final long time = System.currentTimeMillis();
+		final long tDiff = time - data.tsActivity;
 		if (tDiff > 60000L) data.clearLaunchs();
-		final Location launchLoc = data.player.getLocation().add(new Vector(0.0, data.player.getEyeHeight(), 0.0));
+		final LaunchSpec launchSpec = new LaunchSpec(data.player.getLocation(), data.player.getEyeHeight(), time);
 		// Check active contests for removal due to shots.
 		final List<String> rem = new LinkedList<String>();
 		for (final ContestData cd : data.activeContests.values()){
-			if (cd.contest.addLaunch(data, cd, launchLoc)){
+			if (cd.contest.addLaunch(data, cd, launchSpec)){
 				rem.add(cd.contest.name.toLowerCase());
 			}
 		}
@@ -334,7 +340,7 @@ public class Archer extends JavaPlugin implements Listener{
 			if (data.mayForget()) return;
 		}
 		// Register projectile for tracking.
-		data.addLaunch(projectile.getEntityId(), launchLoc); // projectile.getLocation());
+		data.addLaunch(projectile.getEntityId(), launchSpec);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)
@@ -349,15 +355,15 @@ public class Archer extends JavaPlugin implements Listener{
 		final PlayerData data = getPlayerData(projectile);
 		if (data == null) return;
 		final int id = projectile.getEntityId();
-		final Location launchLoc = data.removeLaunch(id);
-		if (launchLoc != null){
+		final LaunchSpec launchSpec = data.removeLaunch(id);
+		if (launchSpec != null){
 			// TODO: Hit / miss events.
 			if (!data.activeContests.isEmpty()){
 				final Entity damaged = event.getEntity();
 				if (damaged instanceof Player){
 					final PlayerData damagedData = getPlayerData((Player) damaged);
 					if (damagedData != null && data != damagedData){
-						contestMan.onProjectileHit(data, launchLoc, projectile.getLocation(), damagedData);
+						contestMan.onProjectileHit(data, launchSpec, projectile.getLocation(), damagedData);
 					}
 				}
 			}
