@@ -14,7 +14,8 @@ public class ContestCommand extends AbstractCommand<Archer> {
 		addSubCommands(
 			new ContestInfoCommand(access),
 			new ContestJoinCommand(access),
-			new ContestLeaveCommand(access)
+			new ContestLeaveCommand(access),
+			new ContestEndCommand(access)
 		);
 	}
 

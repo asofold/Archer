@@ -33,6 +33,11 @@ public class ContestManager {
 	/** TEMP: World to contests. */
 	protected final Map<String, Set<Contest>> worldMap = new HashMap<String, Set<Contest>>();
 	
+	/**
+	 * Get a contest by name, case-insensitive.
+	 * @param name
+	 * @return
+	 */
 	public Contest getContest(String name){
 		// TODO: Lower case ?
 		return contests.get(name.toLowerCase());
@@ -202,6 +207,10 @@ public class ContestManager {
 		}
 	}
 
+	/**
+	 * Return values (no copy).
+	 * @return
+	 */
 	public Collection<Contest> getAllContests() {
 		return contests.values();
 	}

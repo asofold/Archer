@@ -24,7 +24,12 @@ public class ContestInfoCommand extends AbstractCommand<Archer> {
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args)
 	{
 		if (args.length <= 3){
-			return access.tabCompleteAvailableContests(sender, args.length == 3 ? args[2] : "");
+			final String arg = args.length == 3 ? args[2] : "";
+			final List<String> all = access.tabCompleteAvailableContests(sender, arg);
+			if (sender instanceof Player){
+				all.addAll(0, access.tabCompleteActiveContests((Player) sender, arg));
+			}
+			return all;
 		}
 		else{
 			return noTabChoices;

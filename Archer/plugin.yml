@@ -32,6 +32,12 @@ permissions:
     children:
       archer.access.command.contest: true
   
+  archer.command.contest.end:
+    description: Allow to force contests to end.
+    default: op
+    children:
+      archer.access.command.contest: true
+  
   archer.notify:
     description: Toggle notifications about hitting targets (and possibly other).
     default: op

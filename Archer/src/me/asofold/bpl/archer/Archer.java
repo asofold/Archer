@@ -603,7 +603,7 @@ public class Archer extends JavaPlugin implements Listener{
 			}
 		}
 		if (!choices.isEmpty()){
-			Collections.sort(choices);
+			Collections.sort(choices, String.CASE_INSENSITIVE_ORDER);
 		}
 		return choices;
 	}

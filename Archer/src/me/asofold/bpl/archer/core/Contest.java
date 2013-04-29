@@ -258,8 +258,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		}
 		final StringBuilder b = new StringBuilder(200);
 		b.append(Archer.msgStart);
-		b.append("Contest " + name);
-		b.append(ChatColor.YELLOW + name + ChatColor.GRAY + " summary: ");
+		b.append("Contest " + ChatColor.YELLOW + name + ChatColor.GRAY + " summary: ");
 		b.append(cd.hitsDealt + " hits (" + cd.hitsTaken +" taken) | ");
 		if (lossScore.nonzero()){
 			b.append(((int) Math.round(cd.score)) + " score (" + ((int) Math.round(cd.scoreSuffered)) + " taken) | ");
@@ -314,7 +313,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		for (final PlayerData data : activePlayers.values()){
 			names.add(((data.player != null && data.player.isOnline()) ? ChatColor.WHITE : ChatColor.GRAY) + data.playerName);
 		}
-		Collections.sort(names); // TODO: Might re-think, size dependent?
+		Collections.sort(names, String.CASE_INSENSITIVE_ORDER); // TODO: Might re-think, size dependent?
 		return names;
 	}
 
