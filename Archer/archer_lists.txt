@@ -234,3 +234,6 @@ constest lock and unlock ?
     sub perms for properties.
 
 add sub command usage (...)
+
+might add contest start
+

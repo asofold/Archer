@@ -245,7 +245,7 @@ public class ContestManager {
 			// TODO: Might remove if shots used up... 
 			final String key = cd.contest.name.toLowerCase();
 			if (!damagedData.activeContests.containsKey(key)) continue;
-			final HitResult thisResult = cd.contest.onHit(data, cd, distance, damagedData, damagedData.activeContests.get(key));
+			final HitResult thisResult = cd.contest.onHit(data, cd, distance, launchSpec.force, damagedData, damagedData.activeContests.get(key));
 			if (thisResult.hit && !result.hit){
 				// TODO: Make methods in Archer ?
 				Utils.sendMessage(data, Archer.msgStart + "Hit: " + ChatColor.GREEN + damagedData.playerName);

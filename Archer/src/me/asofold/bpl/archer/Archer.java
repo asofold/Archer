@@ -40,6 +40,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
@@ -311,6 +312,27 @@ public class Archer extends JavaPlugin implements Listener{
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = true)
+	final void onLaunch(final EntityShootBowEvent event){
+		if (players.isEmpty()) return;
+		// TODO: Might check event class here too.
+		final Entity pEntity = event.getProjectile();
+		if (!(pEntity instanceof Projectile)) return;
+		final Entity shooter = event.getEntity();
+		if (!(shooter instanceof Player)) return;
+		final PlayerData data = getPlayerData((Player) shooter);
+		if (data == null || data.mayForget()){
+			// mayForget(): not in any contests not subscribed for target notification.
+			return;
+		}
+		// Cleanup.
+		final long time = System.currentTimeMillis();
+		final long tDiff = time - data.tsActivity;
+		if (tDiff > 60000L) data.clearLaunchs();
+		final LaunchSpec launchSpec = new LaunchSpec(data.player.getLocation(), data.player.getEyeHeight(), time, event.getForce());
+		data.addLaunch(pEntity.getEntityId(), launchSpec);
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = true)
 	final void onLaunch(final ProjectileLaunchEvent event){
 		if (players.isEmpty()) return;
 		// TODO: Might check event class here too.
@@ -324,7 +346,9 @@ public class Archer extends JavaPlugin implements Listener{
 		final long time = System.currentTimeMillis();
 		final long tDiff = time - data.tsActivity;
 		if (tDiff > 60000L) data.clearLaunchs();
-		final LaunchSpec launchSpec = new LaunchSpec(data.player.getLocation(), data.player.getEyeHeight(), time);
+		final int id = projectile.getEntityId();
+		final LaunchSpec oldSpec = data.removeLaunch(id);
+		final LaunchSpec launchSpec = new LaunchSpec(data.player.getLocation(), data.player.getEyeHeight(), time, oldSpec == null ? 1f : oldSpec.force);
 		// Check active contests for removal due to shots.
 		final List<String> rem = new LinkedList<String>();
 		for (final ContestData cd : data.activeContests.values()){
@@ -339,7 +363,7 @@ public class Archer extends JavaPlugin implements Listener{
 			if (data.mayForget()) return;
 		}
 		// Register projectile for tracking.
-		data.addLaunch(projectile.getEntityId(), launchSpec);
+		data.addLaunch(id, launchSpec);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = false)

@@ -38,6 +38,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 	public Property maxTime = setProperty("max-time", 0, Long.MAX_VALUE, 600000L); // 10 minutes.
 	
 	public Property minDistance = setProperty("min-distance", 0, Integer.MAX_VALUE, 5.0);
+	public Property minForce= setProperty("min-distance", 0, 1.0, 0.4);
 	
 //	public Property maxPlayers = setProperty("max-players", 0, Integer.MAX_VALUE, 0);
 	public Property minPlayers = setProperty("min-players", 0, Integer.MAX_VALUE, 2);
@@ -405,15 +406,18 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 	 * @param damagedCd
 	 * @return
 	 */
-	public HitResult onHit(PlayerData data, ContestData cd, double distance, PlayerData damagedData, ContestData damagedCd)
+	public HitResult onHit(PlayerData data, ContestData cd, double distance, float force, PlayerData damagedData, ContestData damagedCd)
 	{
 		if (!started) return HitResult.NOT_HIT;
 		if (minDistance.nonzero() && distance < minDistance.value){
 			// TODO: Might check loss by number of shots.
 			return HitResult.NOT_HIT;
 		}
+		if (minForce.nonzero() && force < minForce.value){
+			return HitResult.NOT_HIT;
+		}
 		// TODO: Message ...
-		double score = distance;
+		double score = distance * force;
 		cd.hitsDealt ++;
 		cd.score += score;
 		damagedCd.hitsTaken ++;

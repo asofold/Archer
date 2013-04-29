@@ -13,20 +13,22 @@ public class LaunchSpec {
 	public final String world;
 	public final double x, y, z;
 	public final long time;
+	public final float force;
 	
 	/** For periodic cleanup. */
 	public boolean consumed = false;
 	
-	public LaunchSpec(Location footLoc, double eyeHeight, long time){
-		this(footLoc.getWorld().getName(), footLoc.getX(), footLoc.getY() + eyeHeight, footLoc.getZ(), time);
+	public LaunchSpec(Location footLoc, double eyeHeight, long time, float force){
+		this(footLoc.getWorld().getName(), footLoc.getX(), footLoc.getY() + eyeHeight, footLoc.getZ(), time, force);
 	}
 	
-	public LaunchSpec(String world, double x, double y, double z, long time){
+	public LaunchSpec(String world, double x, double y, double z, long time, float force){
 		this.world = world;
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.time = time;
+		this.force = force;
 	}
 	
 	/**
