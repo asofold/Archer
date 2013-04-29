@@ -218,7 +218,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 			return false;
 		}
 		started = true;
-		Bukkit.getServer().broadcastMessage("Contest " + name + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ChatColor.DARK_GRAY + ", "));
+		Bukkit.getServer().broadcastMessage(Archer.msgStart + ChatColor.YELLOW + "Contest " + ChatColor.GREEN + name + ChatColor.YELLOW + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ChatColor.DARK_GRAY + ", "));
 		notifyActive(Archer.msgStart + ChatColor.YELLOW + "Contest started: " + ChatColor.GREEN + name);
 		return true;
 	}
@@ -308,6 +308,10 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		this.started = false;
 	}
 
+	/**
+	 * Does add color.
+	 * @return
+	 */
 	public List<String> getOnlineNameList() {
 		final List<String> names = new ArrayList<String>(activePlayers.size());
 		for (final PlayerData data : activePlayers.values()){
