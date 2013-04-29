@@ -214,7 +214,7 @@ public class ContestManager {
 					final long time = System.currentTimeMillis();
 					final long timeDiff = time - contest.lastTimeValid;
 					if (timeDiff > 0 && timeDiff < contest.startDelay.value){
-						contest.notifyActive(Archer.msgStart + ChatColor.YELLOW + "Contest " + ChatColor.RED + contest.name + ChatColor.YELLOW + " starting in " + ((int) (contest.startDelay.value - timeDiff) / 1000) + " seconds...");
+						contest.notifyActive(Archer.msgStart + ChatColor.YELLOW + "Contest " + ChatColor.RED + contest.name + ChatColor.YELLOW + " starting in " + ((int) (contest.startDelay.value - timeDiff) / 1000) + " seconds (" + contest.activePlayers.size() + " players)...");
 					}
 				}
 			}

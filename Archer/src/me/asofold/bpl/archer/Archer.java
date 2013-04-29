@@ -190,14 +190,16 @@ public class Archer extends JavaPlugin implements Listener{
 		if (players.isEmpty() || event.getClass() != ProjectileHitEvent.class) return;
 		final Projectile projectile = event.getEntity();
 		final PlayerData data = getPlayerData(projectile);
-		if (data == null || !data.notifyTargets) return;
+		if (data == null) return;
 		final int entityId = projectile.getEntityId();
 		final Location launchLoc = data.removeLaunch(entityId);
 		if (launchLoc == null) return;
 		
 		// TODO: later: add miss / hit events
-		// TODO: Might remove if shots used up... 
+		// TODO: Might remove if shots used up...
 		
+		// Target hitting:
+		if (!data.notifyTargets) return;
 		final Vector velocity = projectile.getVelocity();
 		final Location projLoc = projectile.getLocation();
 		final boolean verbose = settings.verbose;
@@ -319,7 +321,7 @@ public class Archer extends JavaPlugin implements Listener{
 		if (tDiff > 60000L) data.clearLaunchs();
 		final Location launchLoc = data.player.getLocation().add(new Vector(0.0, data.player.getEyeHeight(), 0.0));
 		// Check active contests for removal due to shots.
-		List<String> rem = new LinkedList<String>();
+		final List<String> rem = new LinkedList<String>();
 		for (final ContestData cd : data.activeContests.values()){
 			if (cd.contest.addLaunch(data, cd, launchLoc)){
 				rem.add(cd.contest.name.toLowerCase());

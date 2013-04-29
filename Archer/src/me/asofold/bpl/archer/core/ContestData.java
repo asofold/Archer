@@ -20,4 +20,7 @@ public class ContestData {
 		this.contest = contest;
 	}
 	
+	public boolean interesting(){
+		return shotsFired != 0 || hitsTaken != 0;
+	}
 }

@@ -1,6 +1,7 @@
 package me.asofold.bpl.archer.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,7 +218,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 			return false;
 		}
 		started = true;
-		Bukkit.getServer().broadcastMessage("Contest " + name + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ", "));
+		Bukkit.getServer().broadcastMessage("Contest " + name + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ChatColor.DARK_GRAY + ", "));
 		notifyActive(Archer.msgStart + ChatColor.YELLOW + "Contest started: " + ChatColor.GREEN + name);
 		return true;
 	}
@@ -241,11 +242,33 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		// TODO: Message other active players.
 		// TODO: Set finished.
 		boolean was = activePlayers.remove(data.playerName.toLowerCase()) != null;
-		if (notify) notifyActive(Archer.msgStart + data.playerName + " left contest: " + name);
+		if (notify){
+			notifyActive(Archer.msgStart + data.playerName + " left contest: " + ChatColor.RED + name + ChatColor.GRAY + ", still in: " + Utils.joinObjects(getOnlineNameList(), ChatColor.DARK_GRAY + ", "));
+		}
 		if (started && minPlayers.nonzero() && minPlayers.value > activePlayers.size()){
 			endContest(null);
 		}
+		sendSummary(data, data.activeContests.get(name.toLowerCase()));
 		return was;
+	}
+
+	private void sendSummary(final PlayerData data, final ContestData cd) {
+		if (cd == null || !cd.interesting() || data.player == null || !data.player.isOnline()){
+			return;
+		}
+		final StringBuilder b = new StringBuilder(200);
+		b.append(Archer.msgStart);
+		b.append("Contest " + name);
+		b.append(ChatColor.YELLOW + name + ChatColor.GRAY + " summary: ");
+		b.append(cd.hitsDealt + " hits (" + cd.hitsTaken +" taken) | ");
+		if (lossScore.nonzero()){
+			b.append(((int) Math.round(cd.score)) + " score (" + ((int) Math.round(cd.scoreSuffered)) + " taken) | ");
+		}
+		if (cd.kills > 0){
+			b.append(cd.kills + " kills | ");
+		}
+		b.append(cd.shotsFired + " shots fired");
+		data.player.sendMessage(b.toString());
 	}
 
 	/**
@@ -279,7 +302,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		}
 		// Remove players without side effects
 		for (final PlayerData data : activePlayers.values()){
-			data.activeContests.remove(name.toLowerCase());
+			sendSummary(data, data.activeContests.remove(name.toLowerCase()));
 		}
 		activePlayers.clear();
 		this.lastTimeValid = 0;
@@ -289,10 +312,9 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 	public List<String> getOnlineNameList() {
 		final List<String> names = new ArrayList<String>(activePlayers.size());
 		for (final PlayerData data : activePlayers.values()){
-			if (data.player != null && data.player.isOnline()){
-				names.add(data.playerName);
-			}
+			names.add(((data.player != null && data.player.isOnline()) ? ChatColor.WHITE : ChatColor.GRAY) + data.playerName);
 		}
+		Collections.sort(names); // TODO: Might re-think, size dependent?
 		return names;
 	}
 

@@ -203,3 +203,13 @@ might have to remember force too for projectile launch
 check if contest is active at all.
 
 print sign lines on /archer ?
+
+
+***
+
+notify remaining if a player leaves. Add player names that are left.
+send summary to leaving players.
+
+
+
+
