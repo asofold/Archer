@@ -43,7 +43,8 @@ TODO: ADDED: /archer contest (archer.cmd.contest.join|leave)
 Shortcut permissions:
 
 - archer.normaluser
-    Allows to use /notify and contest+join|leave. No creation or editing of contests.
+    Allows to use /notify and contest+join|leave.
+    No creation or editing of contests.
 
 Configuration
 -----------------------------------------------------------------
@@ -86,6 +87,13 @@ Configuration
 - players.expire-offline: Duration in minutes after which offline 
     player data / notification state expire.
     Set to 0 to never expire data (until restart/reload).
+
+
+TODO: Contest configuration (contests.yml).
+        Sub-sections with arbitrary keys.
+        Will be the same properties as with "contest edit" or 
+        "contest inspect", when using tab completion,
+        except for name and owner (name must be set, not '*').
 
 Method
 -----------------------------------------------------------------
@@ -159,7 +167,7 @@ STACK
 
 * Contests
 
-restrict to arrows only ? [configurable: entity types]
+Allow other than arrows ? [configurable: entity types]
 
 implement timestamp checking to prevent spamming join+leave
 
@@ -186,9 +194,7 @@ summaries...
 
 move iterations over cd to contestmanager (iterator...)
 
-max dur for a contest.
-
-allow remove players while not started on world disconnect (!).
+allow remove players while not started on world change /  disconnect (!).
 
 
 
@@ -198,18 +204,33 @@ start contest + notify
 ... contest logic + notifications [change notify to also display if contests are available]
 ... contest join + leave commands
 
-might have to remember force too for projectile launch
+might have to remember force too for projectile launch [could do that anyway (future!)]
 
-check if contest is active at all.
+check if contest is active at all (in more places !?).
 
 print sign lines on /archer ?
 
 
 ***
 
-notify remaining if a player leaves. Add player names that are left.
-send summary to leaving players.
+perms: admin, ?manager, *editor (+.own), some parent nodes.
+
+run once contests (+ other perms for commands to alter this etc.)
+
+might make some permission defaults editable (?add annotations or add generic permission setup routine (not plugin.yml or redundant)
+    permissions: base-default: op, normaluser-default: true, adsmin-defualt, manager-default.
+
+? away to show specific context settings (context inspect ...?)
+
+constest lock and unlock ?
+
+? allow multiple worlds for a contest ?
+? contest save command ?
+!contest create (!also from console, permission for creating more than one, permission for creating in other worlds, permission for all worlds, permission for certain worlds)
+!contest add contest players... (for use from console), allow to add at runtime / anytime [owner perm + general perm]
 
 
+!contest edit contest property value. [show if property is different than selected + (allow edit world as well) + owner/general perms]
+    sub perms for properties.
 
-
+add sub command usage (...)

@@ -4,7 +4,6 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -563,55 +562,6 @@ public class Archer extends JavaPlugin implements Listener{
 			// Creates data if necessary, though it may be forgotten soon.
 			return contestMan.getAvailableContests(getPlayerData(player, true), loc);
 		}
-	}
-
-	/**
-	 * Convenience method getting all available contests for players or all for non-players.
-	 * @param sender
-	 * @param arg uses trim
-	 * @return A new list that may be modified.
-	 */
-	public List<String> tabCompleteAvailableContests(final CommandSender sender, final String arg) {
-		boolean isPlayer = sender instanceof Player;
-		final Collection<Contest> available =  isPlayer ? getAvailableContests((Player) sender) : getAvailableContests(null);
-		return tabCompleteContests(available, arg);
-	}
-	
-	/**
-	 * 
-	 * @param player
-	 * @param arg
-	 * @return A new list.
-	 */
-	public List<String> tabCompleteActiveContests(final Player player, final String arg){
-		final PlayerData data = getPlayerData(player);
-		if (data == null || data.activeContests.isEmpty()) return new LinkedList<String>();
-		final List<Contest> contests = new LinkedList<Contest>();
-		for (final ContestData cd : data.activeContests.values()){
-			contests.add(cd.contest);
-		}
-		return tabCompleteContests(contests, arg);
-	}
-	
-	/**
-	 * Tab completions for a given collection of Contest instances.
-	 * @param available
-	 * @param arg
-	 * @return
-	 */
-	public List<String> tabCompleteContests(Collection<Contest> available, String arg){
-		arg = arg == null ? "" : arg.trim().toLowerCase();
-		final List<String> choices = new ArrayList<String>(available.size());
-		for (final Contest ref : available){
-			// Might also check for the first letters to match like with '*** xyz ***'.
-			if (ref.name.toLowerCase().startsWith(arg)){
-				choices.add(ref.name);
-			}
-		}
-		if (!choices.isEmpty()){
-			Collections.sort(choices, String.CASE_INSENSITIVE_ORDER);
-		}
-		return choices;
 	}
 
 	public boolean joinContest(final Player player, final Contest contest) {

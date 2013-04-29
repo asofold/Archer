@@ -5,6 +5,7 @@ import java.util.List;
 
 import me.asofold.bpl.archer.Archer;
 import me.asofold.bpl.archer.command.AbstractCommand;
+import me.asofold.bpl.archer.command.TabUtil;
 import me.asofold.bpl.archer.config.Permissions;
 import me.asofold.bpl.archer.core.Contest;
 import me.asofold.bpl.archer.utils.Utils;
@@ -24,10 +25,11 @@ public class ContestInfoCommand extends AbstractCommand<Archer> {
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args)
 	{
 		if (args.length <= 3){
+			// TODO: Tab complete all / color by world/availability ?
 			final String arg = args.length == 3 ? args[2] : "";
-			final List<String> all = access.tabCompleteAvailableContests(sender, arg);
+			final List<String> all = TabUtil.tabCompleteAvailableContests(access, sender, arg);
 			if (sender instanceof Player){
-				all.addAll(0, access.tabCompleteActiveContests((Player) sender, arg));
+				all.addAll(0, TabUtil.tabCompleteActiveContests(access, (Player) sender, arg));
 			}
 			return all;
 		}

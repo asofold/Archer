@@ -259,4 +259,40 @@ public class ContestManager {
 		}
 	}
 	
+	public void endAllContests(final String message) {
+		for (final Contest contest : contests.values()){
+			contest.endContest(message);
+		}
+	}
+
+	/**
+	 * End and delete.
+	 * @param contest
+	 */
+	public void deleteContest(Contest contest) {
+		contest.endContest("Contest deleted.");
+		final String lcName = contest.name.toLowerCase();
+		contests.remove(lcName);
+		worldMap.get(contest.world).remove(lcName);
+	}
+	
+	/**
+	 * End and delete.
+	 */
+	public void deleteAllContests() {
+		endAllContests("Contest deleted.");
+		clear();
+	}
+
+	/**
+	 * Removes and re-adds the contest.
+	 * @param contest
+	 * @param newWorld
+	 */
+	public void changeWorld(Contest contest, String newWorld) {
+		deleteContest(contest);
+		contest.world = newWorld;
+		addContest(contest);
+	}
+	
 }

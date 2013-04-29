@@ -5,6 +5,7 @@ import java.util.List;
 
 import me.asofold.bpl.archer.Archer;
 import me.asofold.bpl.archer.command.AbstractCommand;
+import me.asofold.bpl.archer.command.TabUtil;
 import me.asofold.bpl.archer.config.Permissions;
 import me.asofold.bpl.archer.core.Contest;
 import me.asofold.bpl.archer.utils.Utils;
@@ -24,7 +25,7 @@ public class ContestLeaveCommand extends AbstractCommand<Archer> {
 	{
 		if (!Utils.checkPlayer(sender)) return null;
 		if (args.length <= 3){
-			final List<String> choices =  access.tabCompleteActiveContests((Player) sender, args.length == 3 ? args[2] : "");
+			final List<String> choices =  TabUtil.tabCompleteActiveContests(access, (Player) sender, args.length == 3 ? args[2] : "");
 			if (!choices.isEmpty()) choices.add("*");
 			return choices;
 		}

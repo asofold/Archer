@@ -2,9 +2,11 @@ package me.asofold.bpl.archer.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import me.asofold.bpl.archer.Archer;
 import me.asofold.bpl.archer.config.compatlayer.CompatConfig;
@@ -39,7 +41,7 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 	
 //	public Property maxPlayers = setProperty("max-players", 0, Integer.MAX_VALUE, 0);
 	public Property minPlayers = setProperty("min-players", 0, Integer.MAX_VALUE, 2);
-	public Property winMinPlayers = setProperty("min-players", 0, 1, 1);
+	public Property winMinPlayers = setProperty("win-min-players", 0, 1, 1);
 	
 	public Property allowLateJoin = setProperty("late-join", 0, 1, 0);
 	/** Allow re-join after disconnect. */
@@ -218,7 +220,9 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 			return false;
 		}
 		started = true;
-		Bukkit.getServer().broadcastMessage(Archer.msgStart + ChatColor.YELLOW + "Contest " + ChatColor.GREEN + name + ChatColor.YELLOW + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ChatColor.DARK_GRAY + ", "));
+		if (!activePlayers.isEmpty()){
+			Bukkit.getServer().broadcastMessage(Archer.msgStart + ChatColor.YELLOW + "Contest " + ChatColor.GREEN + name + ChatColor.YELLOW + " starts with players: " + Utils.joinObjects(getOnlineNameList(), ChatColor.DARK_GRAY + ", "));
+		}
 		notifyActive(Archer.msgStart + ChatColor.YELLOW + "Contest started: " + ChatColor.GREEN + name);
 		return true;
 	}
@@ -294,7 +298,9 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 		}
 		message = Archer.msgStart + ChatColor.YELLOW + "Contest " + name + " ended" + (message == null ? "." : "! " + message);
 		if (broadCast){
-			Bukkit.getServer().broadcastMessage(message);
+			if (!activePlayers.isEmpty()){
+				Bukkit.getServer().broadcastMessage(message);
+			}
 		}
 		else{
 			notifyActive(message);
@@ -457,6 +463,40 @@ public class Contest extends ConfigPropertyHolder implements Comparable<Contest>
 			loss = false;
 		}
 		return loss || !started ? HitResult.HIT_FINISHED : HitResult.HIT;
+	}
+
+	public String[] getPropertyMessage() {
+		// TODO: Might store this one.
+		final StringBuilder b = new StringBuilder(300);
+		final Set<String> done = new HashSet<String>(properties.size());
+		for (final Property prop : properties.values()){
+			if (!done.contains(prop.name)){
+				b.append(prop.name + "=" + prop.value + ", ");
+				done.add(prop.name);
+			}
+		}
+		return new String[]{
+				"Contest " + name + " property info:",
+				"owner: " + owner,
+				"world: " + world,
+				"properties: " + b.toString(),
+		};
+	}
+
+	public List<String> tabCompleteProperties(String arg) {
+		arg = arg.trim().toLowerCase();
+		// TODO: Do make a set of original property names ?
+		final Set<String> done = new HashSet<String>(20);
+		final List<String> choices = new ArrayList<String>(20);
+		if ("world".startsWith(arg)) choices.add("world");
+		// TODO: owner ?
+		for (final Property prop : properties.values()){
+			if (!done.contains(prop.name) && prop.name.toLowerCase().startsWith(arg)){
+				choices.add(prop.name);
+				done.add(prop.name);
+			}
+		}
+		return choices;
 	}
 	
 	

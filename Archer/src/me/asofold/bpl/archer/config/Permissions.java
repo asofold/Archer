@@ -17,6 +17,11 @@ public class Permissions {
 	private static final String COMMAND_CONTEST = COMMAND_ARCHER + ".contest";
 	public static final String COMMAND_CONTEST_JOIN = COMMAND_CONTEST + ".join";
 	public static final String COMMAND_CONTEST_LEAVE = COMMAND_CONTEST + ".leave";
+	
+	public static final String COMMAND_CONTEST_INSPECT = COMMAND_CONTEST + ".inspect";
 	public static final String COMMAND_CONTEST_END = COMMAND_CONTEST + ".end";
+	public static final String COMMAND_CONTEST_EDIT = COMMAND_CONTEST + ".edit";
+	public static final String COMMAND_CONTEST_CREATE = COMMAND_CONTEST + ".create";
+	public static final String COMMAND_CONTEST_DELETE = COMMAND_CONTEST + ".delete";
 	
 }

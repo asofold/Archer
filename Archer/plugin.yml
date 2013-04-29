@@ -32,8 +32,32 @@ permissions:
     children:
       archer.access.command.contest: true
   
+  archer.command.contest.inspect:
+    description: Allow to inspect contest properties.
+    default: op
+    children:
+      archer.access.command.contest: true
+  
   archer.command.contest.end:
     description: Allow to force contests to end.
+    default: op
+    children:
+      archer.access.command.contest: true
+  
+  archer.command.contest.edit:
+    description: Allow to edit contest properties (mind sub nodes).
+    default: op
+    children:
+      archer.access.command.contest: true
+  
+  archer.command.contest.create:
+    description: Allow to create contests (mind sub nodes).
+    default: op
+    children:
+      archer.access.command.contest: true
+  
+  archer.command.contest.delete:
+    description: Allow to delete contests (mind sub nodes).
     default: op
     children:
       archer.access.command.contest: true
