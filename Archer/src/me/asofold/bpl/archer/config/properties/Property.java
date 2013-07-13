@@ -61,17 +61,20 @@ public class Property {
 
 	public void fromString(String valDef) {
 		valDef = valDef.trim().toLowerCase();
+		// TODO: consider to allow yes, no (matches) + test that.
 		if (valDef.equals("true")){
 			set(1); // max ?
 		}
 		else if (valDef.equals("false")){
 			set(0); // min ?
 		}
-		try{
-			set(Double.parseDouble(valDef));
-		}
-		catch(Throwable t){
-			// TODO: Failure policy.
+		else{
+			try{
+				set(Double.parseDouble(valDef));
+			}
+			catch(Throwable t){
+				// TODO: Failure policy.
+			}
 		}
 	}
 	
