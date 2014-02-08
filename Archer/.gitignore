@@ -4,3 +4,4 @@
 /jar_desc.jardesc
 *.class
 /.gitignore
+/bin

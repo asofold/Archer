@@ -37,9 +37,9 @@ public class Utils {
 	
 	public static final Player getPlayer(final Projectile projectile){
 		if (!(projectile instanceof Arrow)) return null;
-		final Entity entity = projectile.getShooter();
-		if (entity == null) return null;
-		else if (entity instanceof Player) return (Player) entity;
+		final Object shooter = projectile.getShooter();
+		if (shooter == null) return null;
+		else if (shooter instanceof Player) return (Player) shooter;
 		else return null;
 	}
 	
