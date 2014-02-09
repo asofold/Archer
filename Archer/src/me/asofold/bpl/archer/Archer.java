@@ -301,6 +301,7 @@ public class Archer extends JavaPlugin implements Listener{
 		final String msg = ChatColor.WHITE + data.playerName + ChatColor.GRAY + " hits " + specPart;
 		data.player.sendMessage(ChatColor.WHITE + "---> " +  ChatColor.GRAY + "hits " + specPart);
 		sendNotifyTarget(msg, targetLocation, data);
+		data.removeLaunch(entityId);
 	}
 	
 	private final String stringPos(final double x, final double y, final double z) {
