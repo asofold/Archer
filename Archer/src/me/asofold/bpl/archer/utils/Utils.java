@@ -1,5 +1,6 @@
 package me.asofold.bpl.archer.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import me.asofold.bpl.archer.config.Settings;
@@ -9,7 +10,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 
@@ -37,9 +37,16 @@ public class Utils {
 	
 	public static final Player getPlayer(final Projectile projectile){
 		if (!(projectile instanceof Arrow)) return null;
-		final Object shooter = projectile.getShooter();
-		if (shooter == null) return null;
-		else if (shooter instanceof Player) return (Player) shooter;
+		Object shooter = null;
+		try {
+			shooter = projectile.getClass().getMethod("getShooter").invoke(projectile);
+		} catch (IllegalArgumentException e) {
+		} catch (SecurityException e) {
+		} catch (IllegalAccessException e) {
+		} catch (InvocationTargetException e) {
+		} catch (NoSuchMethodException e) {
+		}
+		if (shooter instanceof Player) return (Player) shooter;
 		else return null;
 	}
 	
