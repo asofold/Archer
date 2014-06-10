@@ -29,18 +29,19 @@ public class TargetSignSpecs {
 	 */
 	public static final TargetSignSpecs getSpecs(final Sign sign, final Settings settings) {
 		final String[] lines = sign.getLines();
+		// First three lines.
 		for (int i = 0; i < 3; i ++) {
 			final String line = Utils.getLine(lines, i, settings.trim, settings.stripColor, settings.ignoreCase);
 			if (!line.equals(settings.lines[i])) {
 				return null;
 			}
 		}
-		final String name;
+		// Fourth line.
+		final String raw_line = lines[3];
 		final String line = Utils.getLine(lines, 3, settings.trim, settings.stripColor, settings.ignoreCase);
-		if (line.equals(settings.lines[3])) {
-			name = ""; // No name.
-		}
-		else if (line.equals(settings.targetNameDelegator)) {
+		// Possible: name delegation, ordinary sign, direct name definition, invalid.
+		final String name;
+		if (line.equals(settings.targetNameDelegator)) {
 			// Find sign with name on it or set to default.
 			final Block block = sign.getBlock();
 			final BlockFace attached = ((Attachable) sign.getData()).getAttachedFace();
@@ -63,11 +64,14 @@ public class TargetSignSpecs {
     				name = "";
 			}
 		}
-		else{
-			// Check for direct name def:
-			name = Utils.getWrappedContent(line, settings.targetNamePrefix, settings.targetNameSuffix);
+		else if (line.equals(settings.lines[3])) {
+			name = ""; // No name.
+		} else {
+			// Probably a direct name definition or an invalid name specification.
+			name = Utils.getWrappedContent(raw_line, settings.targetNamePrefix, settings.targetNameSuffix);
 			if (name == null) {
-				return null; // invalid
+				// Invalid.
+				return null;
 			}
 		}
 		final TargetSignSpecs specs = new TargetSignSpecs();
@@ -96,10 +100,12 @@ public class TargetSignSpecs {
 				continue;
 			}
 			final Sign sign = (Sign) state;
-			final String line = Utils.getLine(sign.getLines(), 3, settings.trim, settings.stripColor, settings.ignoreCase);
-			final String name = Utils.getWrappedContent(line, settings.targetNamePrefix, settings.targetNameSuffix);
-			if (name != null) {
-				return name;
+			final String[] lines = sign.getLines();
+			for (int i = 3; i >= 0; i--) {
+				final String name = Utils.getWrappedContent(lines[i], settings.targetNamePrefix, settings.targetNameSuffix);
+				if (name != null) {
+					return name;
+				}
 			}
 		}
  		return "";

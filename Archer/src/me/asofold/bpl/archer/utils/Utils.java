@@ -28,7 +28,9 @@ public class Utils {
 	}
 	
 	public static boolean checkPlayer(CommandSender sender) {
-		if (sender instanceof Player) return true;
+		if (sender instanceof Player) {
+			return true;
+		}
 		else{
 			sender.sendMessage("[Archer] Only available for players !");
 			return false;
@@ -36,7 +38,9 @@ public class Utils {
 	}
 	
 	public static final Player getPlayer(final Projectile projectile){
-		if (!(projectile instanceof Arrow)) return null;
+		if (!(projectile instanceof Arrow)) {
+			return null;
+		}
 		Object shooter = null;
 		try {
 			shooter = projectile.getClass().getMethod("getShooter").invoke(projectile);
@@ -46,7 +50,9 @@ public class Utils {
 		} catch (InvocationTargetException e) {
 		} catch (NoSuchMethodException e) {
 		}
-		if (shooter instanceof Player) return (Player) shooter;
+		if (shooter instanceof Player) {
+			return (Player) shooter;
+		}
 		else return null;
 	}
 	
@@ -70,25 +76,40 @@ public class Utils {
 	 * @return null if invalid definition.
 	 */
 	public static String getWrappedContent(String line, String prefix, String suffix) {
+		if (line == null) {
+			return null;
+		}
 		boolean hasPrefix = !prefix.isEmpty();
 		if (hasPrefix){
-			if (!line.startsWith(prefix)) return null; // wrong prefix
+			if (!line.startsWith(prefix)) {
+				return null; // wrong prefix
+			}
 			hasPrefix = true;
 		}
 		boolean hasSuffix = !suffix.isEmpty();
 		if (hasSuffix){
-			if (!line.endsWith(suffix)) return null; // wrong suffix
+			if (!line.endsWith(suffix)) {
+				return null; // wrong suffix
+			}
 			hasSuffix = true;
 		}
-		if (!hasPrefix && !hasSuffix) return null;
+		if (!hasPrefix && !hasSuffix) {
+			return null;
+		}
 		return line.substring(hasPrefix?prefix.length() : 0, hasSuffix?(line.length() - suffix.length()) : 0);
 	}
 
 	public static final String getLine(final String[] lines, final int index, final boolean trim, final boolean stripColor, final boolean ignoreCase){
 		String line = lines[index];
-		if (trim) line = line.trim();
-		if (stripColor) line = ChatColor.stripColor(line);
-		if (ignoreCase) line = line.toLowerCase();
+		if (trim) {
+			line = line.trim();
+		}
+		if (stripColor) {
+			line = ChatColor.stripColor(line);
+		}
+		if (ignoreCase) {
+			line = line.toLowerCase();
+		}
 		return line;
 	}
 	
@@ -103,10 +124,16 @@ public class Utils {
         int i = 0;
         final int max = parts.size();
         for (final Object part : parts){
-            if (part == null) builder.append("<null>");
-            else builder.append(part.toString());
+            if (part == null) {
+            	builder.append("<null>");
+            }
+            else {
+            	builder.append(part.toString());
+            }
             i++;
-            if ( i<max && link!=null ) builder.append(link);
+            if ( i<max && link!=null ) {
+            	builder.append(link);
+            }
         }
         return builder.toString();
     }
