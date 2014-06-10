@@ -1,6 +1,6 @@
 name: Archer
 main: me.asofold.bpl.archer.Archer
-version: 1.1.9
+version: 1.1.10
 
 commands:
   archer:

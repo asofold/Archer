@@ -80,7 +80,7 @@ public class TargetSignSpecs {
 		if (settings.targetNamePrefix.isEmpty() && settings.targetNameSuffix.isEmpty()) return "";
 		for (final BlockFace face : faces){
 			final Block block = startBlock.getRelative(face);
-			if (block.getTypeId() != Material.WALL_SIGN.getId()) continue;
+			if (block.getType() != Material.WALL_SIGN) continue;
 			final BlockState state = block.getState();
 			if (!(state instanceof Sign)) continue;
 			final Sign sign = (Sign) state;

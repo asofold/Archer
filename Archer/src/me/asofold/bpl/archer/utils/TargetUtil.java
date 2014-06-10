@@ -31,19 +31,25 @@ public class TargetUtil {
 		Location loc = startLoc.clone();
 	//		loc = loc.add(direction.normalize().multiply(arrowLength));
 		final Block hitBlock = loc.getBlock();
-		int type = hitBlock.getTypeId();
+		Material type = hitBlock.getType();
+		if (type == null) {
+			type = Material.AIR;
+		}
 		final double l = velocity.length();
 		double done = 0.0;
 		final double step = settings.step;
 		final boolean verbose = settings.verbose;
-		if (type == 0){
+		if (type == Material.AIR){
 			// TODO: also for other block types !
 			// TODO: optimize: find block transitions directly (one by one).
 			final Vector add = velocity.clone().multiply(step/l);
-			while (type == 0){
+			while (type == Material.AIR){
 				loc = loc.add(add);
 				if (verbose) System.out.println("EXTEND: " + Utils.stringPos(loc, settings)); // TODO: REMOVE
-				type = loc.getBlock().getTypeId();
+				type = loc.getBlock().getType();
+				if (type == null) {
+					type = Material.AIR;
+				}
 				done += step;
 				if (done >= l) break;
 			}
@@ -52,7 +58,9 @@ public class TargetUtil {
 		
 		if (verbose) System.out.println("Hit type ("+settings.format.format(l)+"): "+ type); // TODO: REMOVE
 		
-		if (type != Material.WALL_SIGN.getId()) return null;
+		if (type != Material.WALL_SIGN) {
+			return null;
+		}
 		return loc;
 	}
 
