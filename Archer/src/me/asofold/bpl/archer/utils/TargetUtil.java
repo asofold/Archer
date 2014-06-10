@@ -14,11 +14,11 @@ public class TargetUtil {
 	 * @param coord
 	 * @return
 	 */
-	public static final double getHitDist(final double coord){
+	public static final double getHitDist(final double coord) {
 		return Math.abs(0.5 - Math.abs(Math.floor(coord)));
 	}
 	
-	public static final double getHitDist(final Location loc){
+	public static final double getHitDist(final Location loc) {
 		return loc.distance(new Location(loc.getWorld(), 0.5 + (double) loc.getBlockX(), 0.5 + (double) loc.getBlockY(), 0.5 + (double) loc.getBlockZ()));
 	}
 
@@ -39,24 +39,30 @@ public class TargetUtil {
 		double done = 0.0;
 		final double step = settings.step;
 		final boolean verbose = settings.verbose;
-		if (type == Material.AIR){
+		if (type == Material.AIR) {
 			// TODO: also for other block types !
 			// TODO: optimize: find block transitions directly (one by one).
 			final Vector add = velocity.clone().multiply(step/l);
-			while (type == Material.AIR){
+			while (type == Material.AIR) {
 				loc = loc.add(add);
-				if (verbose) System.out.println("EXTEND: " + Utils.stringPos(loc, settings)); // TODO: REMOVE
+				if (verbose) {
+					System.out.println("EXTEND: " + Utils.stringPos(loc, settings)); // TODO: REMOVE
+				}
 				type = loc.getBlock().getType();
 				if (type == null) {
 					type = Material.AIR;
 				}
 				done += step;
-				if (done >= l) break;
+				if (done >= l) {
+					break;
+				}
 			}
 			
 		}
 		
-		if (verbose) System.out.println("Hit type ("+settings.format.format(l)+"): "+ type); // TODO: REMOVE
+		if (verbose) {
+			System.out.println("Hit type (" + settings.format.format(l) + "): " + type); // TODO: REMOVE
+		}
 		
 		if (type != Material.WALL_SIGN) {
 			return null;
